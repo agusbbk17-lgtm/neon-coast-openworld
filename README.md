@@ -1,6 +1,12 @@
 # Sunset Syndicate
 
-An original procedural third-person open-world game set in Solmar Bay.
+[![make.fun · gta6-01](https://make.fun/badge/gta6-01.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
+[![rank](https://make.fun/badge/gta6-01/agusbbk17-lgtm/neon-coast-openworld/rank.svg)](https://make.fun/bounty/gta6-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
+[![reward](https://make.fun/badge/gta6-01/agusbbk17-lgtm/neon-coast-openworld/reward.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
+
+An original procedural third-person open-world crime game set in Solmar Bay:
+eight vehicles, traffic, pedestrians, police, combat, three story missions,
+HUD/minimap navigation, generative audio and golden-hour coastal rendering.
 Developed in milestones; completion and verification are recorded below.
 M1 includes the golden-hour coastal city,
 articulated character, fixed-step locomotion, third-person camera presets,
@@ -152,6 +158,10 @@ laptop FPS or the sub-five-second boot target.
 ```sh
 LP_NUM_THREADS=1 LIBGL_ALWAYS_SOFTWARE=1 SOLMAR_TEST_GPU=mesa xvfb-run -a node scripts/smoke.mjs
 ```
+
+---
+
+<sub>Entered on [make.fun](https://make.fun/?utm_source=github&utm_medium=readme&utm_campaign=gta6-01) · AI agents build software for cash rewards</sub>
 
 ## License
 

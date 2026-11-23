@@ -1,0 +1,181 @@
+{
+  "browser": "159.0.8154.6",
+  "scope": "Unedited real browser renders of maker-staged gameplay fixtures; not evidence of a manual playthrough.",
+  "shots": [
+    {
+      "name": "1-coast.jpg",
+      "state": {
+        "player": {
+          "x": 326,
+          "y": 0.28,
+          "z": 361.80842574243786,
+          "state": "drive",
+          "vehicle": "sports"
+        },
+        "vehicle": {
+          "speed": 24.851874668341253,
+          "gear": 3,
+          "health": 100
+        },
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 5.96,
+          "fov": 67,
+          "collisionHits": 0
+        },
+        "wanted": {
+          "stars": 0,
+          "searching": false,
+          "searchLeft": 0
+        },
+        "weapon": "CITRINE PISTOL",
+        "mission": {
+          "id": "first-delivery",
+          "state": "active",
+          "step": 1,
+          "completed": []
+        },
+        "stats": {
+          "fps": 0,
+          "drawCalls": 312,
+          "triangles": 370080,
+          "bootMs": 8084.299999982119,
+          "errors": [],
+          "warnings": []
+        },
+        "seed": "solmar-26"
+      }
+    },
+    {
+      "name": "2-city.jpg",
+      "state": {
+        "player": {
+          "x": -180,
+          "y": -0.0049999999999999975,
+          "z": -332,
+          "state": "idle",
+          "vehicle": null
+        },
+        "vehicle": null,
+        "camera": {
+          "mode": "foot",
+          "preset": "Medium",
+          "distance": 2.82,
+          "fov": 60,
+          "collisionHits": 0
+        },
+        "wanted": {
+          "stars": 0,
+          "searching": false,
+          "searchLeft": 0
+        },
+        "weapon": "CITRINE PISTOL",
+        "mission": {
+          "id": "vault-run",
+          "state": "active",
+          "step": 1,
+          "completed": []
+        },
+        "stats": {
+          "fps": 0,
+          "drawCalls": 262,
+          "triangles": 334128,
+          "bootMs": 8084.299999982119,
+          "errors": [],
+          "warnings": []
+        },
+        "seed": "solmar-26"
+      }
+    },
+    {
+      "name": "3-park.jpg",
+      "state": {
+        "player": {
+          "x": -300,
+          "y": 0.28,
+          "z": 412,
+          "state": "drive",
+          "vehicle": "sports"
+        },
+        "vehicle": {
+          "speed": 0,
+          "gear": 1,
+          "health": 100
+        },
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 5.64,
+          "fov": 60,
+          "collisionHits": 0
+        },
+        "wanted": {
+          "stars": 3,
+          "searching": false,
+          "searchLeft": 18
+        },
+        "weapon": "CITRINE PISTOL",
+        "mission": {
+          "id": "heat-wave",
+          "state": "active",
+          "step": 1,
+          "completed": []
+        },
+        "stats": {
+          "fps": 0,
+          "drawCalls": 303,
+          "triangles": 375528,
+          "bootMs": 8084.299999982119,
+          "errors": [],
+          "warnings": []
+        },
+        "seed": "solmar-26"
+      }
+    },
+    {
+      "name": "4-heat.jpg",
+      "state": {
+        "player": {
+          "x": 337.35602144661755,
+          "y": 0.125,
+          "z": 369.84858377213914,
+          "state": "aim",
+          "vehicle": null
+        },
+        "vehicle": null,
+        "camera": {
+          "mode": "aim",
+          "preset": "Medium",
+          "distance": 1.16,
+          "fov": 45.6,
+          "collisionHits": 0
+        },
+        "wanted": {
+          "stars": 3,
+          "searching": false,
+          "searchLeft": 18
+        },
+        "weapon": "CITRINE PISTOL",
+        "mission": {
+          "id": "vault-run",
+          "state": "active",
+          "step": 0,
+          "completed": []
+        },
+        "stats": {
+          "fps": 0,
+          "drawCalls": 306,
+          "triangles": 369160,
+          "bootMs": 8084.299999982119,
+          "errors": [],
+          "warnings": []
+        },
+        "seed": "solmar-26"
+      }
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "external": []
+}
