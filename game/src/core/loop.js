@@ -11,6 +11,7 @@ export class FixedLoop {
     const elapsed = this.last ? (now - this.last) / 1000 : this.step;
     const dt = Math.min(0.1, elapsed); this.last = now;
     if (!document.hidden) {
+      this.beforeFrame?.(dt);
       if (!this.paused) {
         this.accumulator += dt * this.timeScale; let steps = 0;
         while (this.accumulator >= this.step && steps < 6) { this.update(this.step); this.accumulator -= this.step; steps++; }

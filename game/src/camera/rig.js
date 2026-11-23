@@ -14,6 +14,8 @@ export class CameraRig {
     this.positionLag = 1 / 0.12; this.rotationLag = 1 / 0.06;
     this.oldRotation = new THREE.Quaternion(); this.desiredRotation = new THREE.Quaternion();
     this.vHeld = -1; this.vToggled = false;
+    this.handheld = true; this.director = null; this.fallbackVehicle = null;
+    this.trackingVehicle = null; this.lastVehiclePosition = new THREE.Vector3();
   }
   setPreset(name) { if (CAMERA_PRESETS[name]) this.preset = name; }
   cycle() { this.setPreset(PRESET_NAMES[(PRESET_NAMES.indexOf(this.preset) + 1) % PRESET_NAMES.length]); }
@@ -24,7 +26,10 @@ export class CameraRig {
     }
     if (player?.vehicle && this.vHeld >= 0 && input.down('KeyV')) {
       this.vHeld += dt;
-      if (this.vHeld >= 0.6 && !this.vToggled) { this.cinematic = !this.cinematic; this.vToggled = true; }
+      if (this.vHeld >= 0.6 && !this.vToggled) {
+        this.cinematic = !this.cinematic; this.vToggled = true;
+        if (this.cinematic && !this.cinematicHintSeen) { this.notify?.('Cinematic camera: steering is harder. Hold V to return.'); this.cinematicHintSeen = true; }
+      }
     }
     if (input.up('KeyV') && player?.vehicle) { if (this.vHeld >= 0 && !this.vToggled) this.cycle(); this.vHeld = -1; }
     if (input.take('KeyT') && player?.vehicle) this.phone = !this.phone;
@@ -47,11 +52,18 @@ export class CameraRig {
     let target = new THREE.Vector3(p.x - sin * 8, this.pivot.y - Math.sin(this.pitch) * 8, p.z - cos * 8);
     let goalFov = inspect ? this.baseFov : lerp(this.baseFov + (player.state === 'sprint' ? 6 : 0), 45, this.aimBlend), roll = 0;
     if (player.vehicle || player.transition) {
+      const vehicle = player.vehicle || player.transition.vehicle, vp = vehicle.rendered;
+      if (this.trackingVehicle === vehicle) this.smoothed.add(new THREE.Vector3(vp.x, vp.y, vp.z).sub(this.lastVehiclePosition));
+      this.trackingVehicle = vehicle; this.lastVehiclePosition.set(vp.x, vp.y, vp.z);
       const frame = drivingFrame(this, player, input, dt, time); desired = frame.desired; target = frame.target; goalFov = frame.fov; roll = frame.roll;
-    }
-    const first = !this.started;
+    } else this.trackingVehicle = null;
+    if (!this.reduceMotion && this.handheld && !player.vehicle) desired.y += Math.sin(time * 1.4) * 0.01 + (player.state === 'sprint' ? Math.sin(time * 13) * 0.045 : 0);
+    if (this.director) this.director.cinematic = this.cinematic;
+    const directed = this.director?.frame(player, this.fallbackVehicle, this.reduceMotion, input, dt);
+    if (directed) { this.pivot.copy(directed.pivot); desired = directed.desired; target = directed.target; goalFov = directed.fov; this.mode = directed.mode; roll = 0; }
+    const first = !this.started || directed?.forceCut;
     if (first) { this.smoothed.copy(desired); this.started = true; } this.smoothed.lerp(desired, damping(this.positionLag, dt));
-    const safe = this.collision.solve(this.pivot, this.smoothed, dt); this.camera.position.set(safe.x, Math.max(0.32, safe.y), safe.z);
+    const safe = this.collision.solve(this.pivot, this.smoothed, dt, Boolean(directed?.forceCut)); this.camera.position.set(safe.x, Math.max(0.32, safe.y), safe.z);
     this.oldRotation.copy(this.camera.quaternion); this.camera.lookAt(target); this.camera.rotateZ(roll); this.desiredRotation.copy(this.camera.quaternion);
     if (!first) this.camera.quaternion.copy(this.oldRotation).slerp(this.desiredRotation, damping(this.rotationLag, dt));
     this.fov = lerp(this.fov, goalFov, damping(16, dt)); this.camera.fov = this.fov; this.camera.updateProjectionMatrix();

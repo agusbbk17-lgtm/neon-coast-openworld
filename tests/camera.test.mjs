@@ -4,6 +4,10 @@ import { damping, dampAngle } from '../game/src/core/math.js';
 import { CollisionWorld, segmentBox } from '../game/src/systems/collision.js';
 import { CameraCollision } from '../game/src/camera/collision.js';
 import { CAMERA_PRESETS } from '../game/src/camera/presets.js';
+import { splinePoint } from '../game/src/camera/director.js';
+import { CameraRig } from '../game/src/camera/rig.js';
+import * as THREE from '../game/vendor/three.min.js';
+import { VEHICLE_TYPES } from '../game/src/data/vehicles.js';
 
 test('camera damping is independent of 60 versus 144 Hz', () => {
   const integrate = hz => { let x = 0; for (let i = 0; i < hz; i++) x += (10 - x) * damping(1 / 0.12, 1 / hz); return x; };
@@ -30,4 +34,18 @@ test('camera pulls in safely and eases back out', () => {
 test('capsule motion cannot tunnel through a wall', () => {
   const world = new CollisionWorld(); world.add(0, 2, 3, 10, 4, 1); const body = { x: 0, y: 0.1, z: 0 };
   world.move(body, 0, 20, 0.4); assert.ok(body.z <= 2.10001); assert.ok(body.z > 2);
+});
+test('director spline reaches both endpoints without non-finite coordinates', () => {
+  const points = [[10, 6, 12], [4, 4, -5], [0, 3, 6]];
+  assert.deepEqual(splinePoint(points, 0), points[0]); assert.deepEqual(splinePoint(points, 1), points[2]);
+  for (let i = 0; i <= 100; i++) assert.ok(splinePoint(points, i / 100).every(Number.isFinite));
+});
+test('vehicle camera tracks interpolated translation without extra speed-dependent lag', () => {
+  const camera = new THREE.PerspectiveCamera(), rig = new CameraRig(camera, new CollisionWorld());
+  const vehicle = { type: 'sports', config: VEHICLE_TYPES.sports, rendered: { x: 0, y: 0.08, z: 0, yaw: 0 }, yaw: 0, vx: 0, vz: -20, speed: 20, steering: 0, impact: 0 };
+  const player = { vehicle, rendered: { x: 0, y: 0.28, z: 0, yaw: 0 }, speed: 20, state: 'drive', fade() {} };
+  const input = { consumeLook: () => ({ x: 0, y: 0 }), down: () => false, axes: () => ({ x: 0, z: 0 }) };
+  for (let i = 0; i < 300; i++) { vehicle.rendered.z -= 20 / 60; player.rendered.z = vehicle.rendered.z; rig.update(1 / 60, player, input, i / 60); }
+  const expected = vehicle.config.length * 1.25 * (1 + 20 / vehicle.config.topSpeed * 0.15);
+  assert.ok(Math.abs(camera.position.z - vehicle.rendered.z - expected) < 0.01);
 });

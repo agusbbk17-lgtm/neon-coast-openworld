@@ -1,0 +1,16 @@
+{
+  "menu": true,
+  "cinematicIntro": {
+    "mode": "intro",
+    "active": true
+  },
+  "chase": {
+    "mode": "vehicle",
+    "preset": "Medium",
+    "distance": 7.97,
+    "fov": 65.4,
+    "collisionHits": 0
+  },
+  "errors": [],
+  "warnings": []
+}

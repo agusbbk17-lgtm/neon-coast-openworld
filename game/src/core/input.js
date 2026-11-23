@@ -1,6 +1,9 @@
 import { clamp } from './math.js';
 
 const prevent = new Set(['Space', 'Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'AltLeft']);
+export const gamepadBindings = vehicle => vehicle
+  ? ['Space', 'KeyR', 'KeyR', 'KeyE', 'Mouse2', 'Mouse0', null, null, 'KeyM', 'Escape', 'KeyH', 'KeyB', 'KeyT', 'KeyB', 'KeyV', 'KeyQ']
+  : ['Space', 'KeyC', 'KeyR', 'KeyE', 'KeyQ', 'KeyH', 'Mouse2', 'Mouse0', 'KeyM', 'Escape', 'ShiftLeft', 'AltLeft', 'KeyT', 'KeyV', 'KeyX', 'BracketRight'];
 export class Input {
   constructor(canvas) {
     this.canvas = canvas; this.keys = new Set(); this.pressed = new Set(); this.released = new Set();
@@ -38,8 +41,7 @@ export class Input {
     const deadzone = value => Math.abs(value || 0) < 0.15 ? 0 : value;
     this.padMove = { x: deadzone(pad.axes[0]), z: deadzone(pad.axes[1]) };
     this.padLook = { x: deadzone(pad.axes[2]), y: deadzone(pad.axes[3]) };
-    const bindings = ['Space', 'KeyC', 'KeyR', 'KeyE', 'KeyQ', 'KeyH', 'Mouse2', 'Mouse0',
-      'KeyM', 'Escape', 'ShiftLeft', 'KeyB', 'KeyT', vehicle ? 'KeyB' : 'KeyV', vehicle ? 'KeyV' : 'KeyX', 'Digit2'];
+    const bindings = gamepadBindings(vehicle);
     this.padHeld.clear();
     pad.buttons.forEach((button, index) => {
       const key = bindings[index]; if (!key) return;

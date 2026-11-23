@@ -17,6 +17,21 @@ try {
   console.log('Page loaded');
   console.log('Initial state:', await page.evaluate(() => ({ ready: Boolean(window.__game?.ready), time: window.__game?.time, fatal: document.querySelector('#fatal').textContent })));
   await page.waitForFunction(() => window.__game?.ready, { timeout: 30000 });
+  if (!['M1', 'M2'].includes(milestone)) {
+    await page.evaluate(() => window.__game.menus.show('settings'));
+    await page.locator('[data-setting="camera"]').selectOption('Far');
+    assert.equal(await page.evaluate(() => window.__game.rig.preset), 'Far');
+    await page.locator('[data-setting="camera"]').selectOption('Medium');
+    await page.locator('[data-setting="reduceMotion"]').check();
+    assert.equal(await page.evaluate(() => window.__game.rig.reduceMotion), true);
+    await page.locator('[data-setting="reduceMotion"]').uncheck();
+    await page.evaluate(() => window.__game.menus.show('map'));
+    await page.locator('#full-map').click({ position: { x: 160, y: 190 } });
+    assert.ok(await page.evaluate(() => window.__game.route.length > 0));
+    await page.evaluate(() => { const g = window.__game; g.menus.close(false); g.setWaypoint({ x: 320, z: -610 }); });
+    assert.ok(await page.evaluate(() => window.__game.save()));
+    assert.equal(await page.evaluate(() => window.__game.audio.context), null, 'noaudio creates no AudioContext');
+  }
   await page.evaluate(() => window.__game.step(0.4));
   console.log('Boot:', await page.evaluate(() => window.__game.state()));
   const start = await page.evaluate(() => window.__game.player.z);
@@ -52,12 +67,17 @@ try {
     await page.keyboard.press('t'); await page.evaluate(() => window.__game.step(0.25));
     assert.equal(await page.evaluate(() => window.__game.rig.mode), 'phone');
     await page.keyboard.press('t'); await page.evaluate(() => window.__game.step(3, { z: 1 }));
+    if (!['M1', 'M2'].includes(milestone)) {
+      await page.evaluate(() => { const g = window.__game; g.input.keys.add('KeyV'); g.input.pressed.add('KeyV'); g.step(0.7); });
+      assert.equal(await page.evaluate(() => window.__game.rig.mode), 'cinematic');
+      await page.evaluate(() => { const g = window.__game; g.input.keys.delete('KeyV'); g.input.released.add('KeyV'); g.step(0.1); g.rig.cinematic = false; });
+    }
     await page.keyboard.press('e'); await page.evaluate(() => window.__game.step(0.45));
     assert.equal(await page.evaluate(() => window.__game.player.vehicle), null, 'vehicle exit completes');
     assert.equal(await page.evaluate(() => window.__game.player.transition), null);
     await page.evaluate(() => { const g = window.__game; g.fleet.enter(g.fleet.vehicles[0], true); g.teleport(326, 355, 0); g.step(0.6); });
   }
-  await page.evaluate(() => { const g = window.__game; if (!g.player.vehicle) g.teleport(329, 359, 0); g.quality.auto = false; g.step(0.4); g.quality.set('high'); g.renderFrame(); });
+  await page.evaluate(() => { const g = window.__game; if (!g.player.vehicle) g.teleport(329, 359, 0); g.quality.auto = false; g.step(4.2); g.quality.set('high'); g.renderFrame(); });
   await page.waitForTimeout(1000);
   mkdirSync('test-results', { recursive: true });
   await page.screenshot({ path: `test-results/${milestone}.jpg`, type: 'jpeg', quality: 85 });
