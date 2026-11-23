@@ -4,7 +4,14 @@ import { clamp } from '../core/math.js';
 
 export function groundHeight(x, z) {
   if (x > CITY.shore) return -0.75;
+  if (CITY.streetsX.some(street => Math.abs(street - x) < 17) || CITY.streetsZ.some(street => Math.abs(street - z) < 17)) return 0;
   const hill = Math.exp(-((x + 748) ** 2 / 6400 + (z - 450) ** 2 / 32000)) * 22; return Math.max(0, hill - 0.5);
+}
+export function walkSurfaceHeight(x, z) {
+  if (x >= CITY.shore && x < 470) return -0.22;
+  const onRoad = CITY.streetsX.some(street => Math.abs(street - x) < CITY.roadWidth / 2)
+    || (x < 345 && CITY.streetsZ.some(street => Math.abs(street - z) < CITY.roadWidth / 2));
+  return groundHeight(x, z) + (onRoad ? 0.05 : 0.18);
 }
 export function createTerrain(scene, materials) {
   const geometry = new THREE.PlaneGeometry(1570, 1570, 96, 96); geometry.rotateX(-Math.PI / 2);

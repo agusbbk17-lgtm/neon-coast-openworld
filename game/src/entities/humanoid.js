@@ -1,7 +1,7 @@
 import * as THREE from '../../vendor/three.min.js';
 import { box } from '../render/geometry.js';
 import { clamp, dampAngle, damping, heading, interpolateTransform } from '../core/math.js';
-import { groundHeight } from '../world/terrain.js';
+import { walkSurfaceHeight } from '../world/terrain.js';
 import { CITY } from '../data/city.js';
 
 // Procedural articulated skeleton: pivots at hips, shoulders, elbows and knees.
@@ -62,7 +62,7 @@ export class Player {
     const moved = this.world.collision.move(this, this.velocity.x * dt, this.velocity.z * dt); this.speed = Math.hypot(moved.dx, moved.dz) / dt;
     if (this.aiming) this.yaw = dampAngle(this.yaw, cameraYaw, 18, dt); else if (magnitude > 0.05) this.yaw = dampAngle(this.yaw, heading(dx, dz), 12, dt);
     if (input.take('Space') && this.grounded) { this.vy = 6.3; this.grounded = false; }
-    this.vy -= 18 * dt; this.y += this.vy * dt; const floor = groundHeight(this.x, this.z) + 0.18;
+    this.vy -= 18 * dt; this.y += this.vy * dt; const floor = walkSurfaceHeight(this.x, this.z) - 0.055;
     if (this.y <= floor) { this.y = floor; this.vy = 0; this.grounded = true; }
     this.x = clamp(this.x, -768, 449); this.z = clamp(this.z, -733, 749);
     this.state = !this.grounded ? this.vy > 0 ? 'jump' : 'fall' : this.crouched ? 'crouch' : this.aiming ? 'aim' : this.speed > 6 ? 'sprint' : this.speed > 0.3 ? 'walk' : 'idle';

@@ -14,7 +14,7 @@ export function generateBuildings(seed) {
     const rows = downtown ? 2 : 3, columns = 2;
     for (let i = 0; i < columns; i++) for (let j = 0; j < rows; j++) {
       const x = xa + 29 + i * (xb - xa - 58), z = za + 31 + j * ((zb - za - 62) / Math.max(1, rows - 1));
-      const width = rng.range(22, downtown ? 34 : 29), depth = rng.range(19, rows === 3 ? 25 : 35);
+      const width = rng.range(22, 28), depth = rng.range(19, rows === 3 ? 25 : 28);
       const height = industrial ? rng.range(7, 17) : downtown ? rng.range(30, 105) : coastal ? rng.range(15, 44) : rng.range(8, 24);
       records.push({ x, z, width, depth, height, style: rng.int(0, 5), downtown, industrial, coastal,
         sign: rng.pick(BRANDS), accent: rng.pick(['#e6a97d', '#5fa1a2', '#e7d6b4', '#acbcbc']) });

@@ -96,6 +96,17 @@ export class VehicleFleet {
     for (let i = 0; i < nearby.length; i++) for (let j = i + 1; j < nearby.length; j++)
       if (distance2D(nearby[i], nearby[j]) < 7) resolveVehiclePair(nearby[i], nearby[j]);
     this.transition(dt);
+    if (!player.vehicle && !player.transition) {
+      for (const v of nearby) {
+        const dx = player.x - v.x, dz = player.z - v.z, cos = Math.cos(v.yaw), sin = Math.sin(v.yaw);
+        const x = dx * cos - dz * sin, z = -dx * sin - dz * cos;
+        const px = v.config.width / 2 + 0.36 - Math.abs(x), pz = v.config.length / 2 + 0.36 - Math.abs(z);
+        if (px > 0 && pz > 0 && Math.abs(player.y - v.y) < 1.2) {
+          if (px < pz) { const sign = x < 0 ? -1 : 1; player.x += cos * px * sign; player.z -= sin * px * sign; }
+          else { const sign = z < 0 ? -1 : 1; player.x -= sin * pz * sign; player.z -= cos * pz * sign; }
+        }
+      }
+    }
     if (player.vehicle && !player.transition) {
       const v = player.vehicle; player.x = v.x; player.z = v.z; player.y = v.y + 0.2; player.yaw = v.yaw; player.speed = Math.abs(v.speed); player.state = 'drive';
     }

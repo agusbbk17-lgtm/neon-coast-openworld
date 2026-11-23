@@ -11,6 +11,10 @@ M3 adds the HUD, rotating GPS minimap, clickable full map, main/pause/settings
 menus, local autosave, a spline opening into the chase camera, cinematic vehicle
 shots, gesture-started engine/footstep/wind/horn audio and three original
 generative radio stations.
+M4 adds 28 moving lane-following traffic cars, synchronized green/yellow/red
+intersection lights, a connected sidewalk/crossing graph, 62 seeded walkers,
+car/gunshot reactions, witness-call events, ejected carjack drivers and an
+instanced articulated crowd. Sidewalk clearance and foot grounding were fixed.
 
 ## Run locally
 
@@ -91,6 +95,12 @@ not available for subjective/hardware verification.
 LP_NUM_THREADS=1 LIBGL_ALWAYS_SOFTWARE=1 SOLMAR_TEST_GPU=mesa xvfb-run -a node scripts/audio-check.mjs
 LP_NUM_THREADS=1 LIBGL_ALWAYS_SOFTWARE=1 SOLMAR_TEST_GPU=mesa xvfb-run -a node scripts/ui-check.mjs
 ```
+
+M4: 24 unit tests passed. In a browser, all 28 traffic vehicles and 53 of 62
+pedestrians moved during a ten-second fixed simulation; camera/drive/settings
+regressions also passed. The genuine High render used 262 draw calls with
+zero console errors, warnings and external requests. Traffic AI is time-sliced;
+crowd geometry is instanced in two draws, with interpolated poses.
 
 ## License
 

@@ -17,6 +17,7 @@ try {
   console.log('Page loaded');
   console.log('Initial state:', await page.evaluate(() => ({ ready: Boolean(window.__game?.ready), time: window.__game?.time, fatal: document.querySelector('#fatal').textContent })));
   await page.waitForFunction(() => window.__game?.ready, { timeout: 30000 });
+  if (!['M1', 'M2', 'M3'].includes(milestone)) await page.evaluate(() => { const g = window.__game; g.traffic.paused = true; for (const car of g.traffic.cars) car.active = false; });
   if (!['M1', 'M2'].includes(milestone)) {
     await page.evaluate(() => window.__game.menus.show('settings'));
     await page.locator('[data-setting="camera"]').selectOption('Far');
@@ -77,7 +78,18 @@ try {
     assert.equal(await page.evaluate(() => window.__game.player.transition), null);
     await page.evaluate(() => { const g = window.__game; g.fleet.enter(g.fleet.vehicles[0], true); g.teleport(326, 355, 0); g.step(0.6); });
   }
-  await page.evaluate(() => { const g = window.__game; if (!g.player.vehicle) g.teleport(329, 359, 0); g.quality.auto = false; g.step(4.2); g.quality.set('high'); g.renderFrame(); });
+  if (!['M1', 'M2', 'M3'].includes(milestone)) {
+    const ai = await page.evaluate(() => {
+      const g = window.__game; g.traffic.paused = false; for (const car of g.traffic.cars) car.active = true;
+      const cars = g.traffic.cars.map(car => ({ x: car.x, z: car.z })), people = g.pedestrians.people.map(p => ({ x: p.x, z: p.z }));
+      g.teleport(326, 355, 0); g.step(10);
+      return { carsMoving: g.traffic.cars.filter((car, i) => Math.hypot(car.x - cars[i].x, car.z - cars[i].z) > 1).length,
+        peopleMoving: g.pedestrians.people.filter((p, i) => Math.hypot(p.x - people[i].x, p.z - people[i].z) > 0.5).length };
+    });
+    assert.ok(ai.carsMoving > 8, 'live traffic moves'); assert.ok(ai.peopleMoving > 12, 'pedestrians walk sidewalks');
+    console.log('AI check:', ai);
+  }
+  await page.evaluate(() => { const g = window.__game; if (!g.player.vehicle) g.teleport(329, 359, 0); else g.teleport(326, 355, 0); g.quality.auto = false; g.step(4.2); g.quality.set('high'); g.renderFrame(); });
   await page.waitForTimeout(1000);
   mkdirSync('test-results', { recursive: true });
   await page.screenshot({ path: `test-results/${milestone}.jpg`, type: 'jpeg', quality: 85 });

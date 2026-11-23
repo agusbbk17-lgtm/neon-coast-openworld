@@ -17,6 +17,9 @@ import { Radio } from './systems/radio.js';
 import { HUD } from './ui/hud.js';
 import { Menus } from './ui/menus.js';
 import { readSave, writeSave } from './core/save.js';
+import { TrafficSignals } from './world/signals.js';
+import { Traffic } from './systems/traffic.js';
+import { Pedestrians } from './entities/pedestrians.js';
 
 const params = new URLSearchParams(location.search), canvas = document.querySelector('#viewport');
 const fatal = document.querySelector('#fatal'), startedAt = performance.now();
@@ -55,14 +58,15 @@ function boot(context) {
     time += dt; input.poll(Boolean(player.vehicle)); rig.handle(input, player, dt);
     if (game.menus) game.menus.settings.camera = rig.preset;
     player.update(dt, input, rig.yaw);
-    fleet.update(dt, input); world.update(dt, time, player); director.update(dt); notifyTimer -= dt;
+    game.traffic.update(dt); fleet.update(dt, input); game.pedestrians.update(dt); world.update(dt, time, player); director.update(dt); notifyTimer -= dt;
     routeTimer -= dt; if (routeTimer <= 0 && game.waypoint) { game.setWaypoint(game.waypoint); routeTimer = 1; }
     audio.update(dt, game); radio.update(game); saveTimer -= dt;
     if (saveTimer <= 0 && game.hasStarted) { game.save(); saveTimer = 12; }
     input.endStep();
   }, (alpha, dt, elapsed) => {
     if (game.menus.isOpen) director.update(dt);
-    fleet.render(alpha, time); player.render(alpha, time); rig.update(dt, player, input, time); world.render(time, camera);
+    const renderTime = Math.max(0, time - loop.step + alpha * loop.step);
+    fleet.render(alpha, renderTime); game.pedestrians.render(alpha, renderTime); game.signals.render(); player.render(alpha, renderTime); rig.update(dt, player, input, renderTime); world.render(renderTime, camera);
     renderer.info.reset(); postfx.render(scene, camera, time, player.speed, world.lighting.night, rig.reduceMotion);
     stats.drawCalls = renderer.info.render.calls; stats.triangles = renderer.info.render.triangles;
     frames++; sampleTime += elapsed; if (sampleTime >= 1) { stats.fps = frames / sampleTime; frames = sampleTime = 0; }
@@ -74,7 +78,7 @@ function boot(context) {
   window.addEventListener('resize', resize); resize();
   canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); loop.paused = true; fatal.hidden = false; fatal.textContent = 'Graphics context lost. Waiting for restoration…'; });
   canvas.addEventListener('webglcontextrestored', () => { fatal.hidden = true; loop.paused = false; resize(); });
-  const game = window.__game = { ready: false, version: 'M3', params, scene, renderer, camera, world, player, input, rig, quality, postfx, events, stats, loop, fleet, environment,
+  const game = window.__game = { ready: false, version: 'M4', params, scene, renderer, camera, world, player, input, rig, quality, postfx, events, stats, loop, fleet, environment,
     graph, director, audio, radio, hasStarted: false, waypoint: null, route: [],
     notify, get time() { return time; },
     setWaypoint(point) { this.waypoint = point; this.route = graph.path(player, point).concat(point); },
@@ -101,12 +105,13 @@ function boot(context) {
       input.injected = null; this.hud.render(); return { clipped, state: this.state() };
     },
     renderFrame() {
-      fleet.render(1, time); player.render(1, time); rig.update(1 / 60, player, input, time); world.render(time, camera);
+      fleet.render(1, time); this.pedestrians.render(1); this.signals.render(); player.render(1, time); rig.update(1 / 60, player, input, time); world.render(time, camera);
       renderer.info.reset(); postfx.render(scene, camera, time, player.speed, world.lighting.night, rig.reduceMotion);
       stats.drawCalls = renderer.info.render.calls; stats.triangles = renderer.info.render.triangles;
       this.hud.render(); if (notifyTimer < 0) document.querySelector('#notification').classList.remove('visible');
     },
   };
+  game.signals = new TrafficSignals(scene, graph, world.materials); game.traffic = new Traffic(game, game.signals); game.pedestrians = new Pedestrians(game, game.signals);
   game.setWaypoint({ x: 320, z: -610 });
   game.hud = new HUD(ui, game, params.has('debug')); game.menus = new Menus(game, game.hud);
   loop.beforeFrame = dt => { input.poll(Boolean(player.vehicle)); game.menus.handle(input, dt); if (game.menus.isOpen) input.endStep(); };
