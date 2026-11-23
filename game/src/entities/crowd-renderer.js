@@ -4,7 +4,7 @@ import { distance2D, angleDelta } from '../core/math.js';
 // All animated crowd limbs share one instanced box mesh, heads another.
 export class CrowdRenderer {
   constructor(scene, materials, capacity = 96) {
-    this.capacity = capacity; this.boxesPerPerson = 14; this.dummy = new THREE.Object3D(); this.root = new THREE.Object3D();
+    this.capacity = capacity; this.boxesPerPerson = 15; this.dummy = new THREE.Object3D(); this.root = new THREE.Object3D();
     const material = materials.surface('#fff', 0.82);
     this.boxes = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), material, capacity * this.boxesPerPerson);
     this.heads = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 10, 8), material, capacity);
@@ -38,6 +38,7 @@ export class CrowdRenderer {
         part(side * 0.12, 0.88 - 0.42 * Math.cos(step) - 0.19 * Math.cos(knee), -0.42 * Math.sin(step) - 0.19 * Math.sin(knee), 0.16, 0.38, 0.18, knee, npc.pants);
         part(side * 0.12, 0.08, -0.045, 0.19, 0.13, 0.29, 0, '#263439');
       }
+      if (npc.armed && npc.health > 0) part(0.3, 1.30, -0.63, 0.10, 0.10, 0.30, 0, '#26383c'); else this.boxes.setMatrixAt(i * this.boxesPerPerson + 14, this.hidden);
       this.dummy.position.set(0, 1.65, 0); this.dummy.scale.set(0.15, 0.195, 0.15); this.dummy.rotation.set(0, 0, 0); this.dummy.updateMatrix();
       this.matrix.multiplyMatrices(this.root.matrix, this.dummy.matrix); this.heads.setMatrixAt(i, this.matrix); this.heads.setColorAt(i, new THREE.Color(npc.skin));
     }

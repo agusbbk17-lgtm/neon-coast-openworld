@@ -41,8 +41,8 @@ export class VehicleFleet {
   enter(vehicle = this.nearest(), immediate = false) {
     const player = this.player; if (!vehicle || player.vehicle || player.transition || vehicle.health <= 0) return false;
     if (vehicle.driver && vehicle.driver !== 'player') this.events.emit('carjack', { vehicle, driver: vehicle.driver });
-    vehicle.ai = null; vehicle.driver = 'player'; this.lastEntered = vehicle;
-    player.aiming = false; player.crouched = false;
+    vehicle.ai = null; vehicle.driver = 'player'; vehicle.playerOwned = true; this.lastEntered = vehicle;
+    player.aiming = false; player.crouched = false; player.cover = null;
     if (immediate) { player.vehicle = vehicle; player.x = vehicle.x; player.z = vehicle.z; player.y = vehicle.y + 0.2; player.yaw = vehicle.yaw; player.snapshot(); this.events.emit('vehicle-enter', vehicle); return true; }
     player.transition = { mode: 'enter', vehicle, t: 0, from: { x: player.x, y: player.y, z: player.z } };
     return true;
@@ -85,12 +85,15 @@ export class VehicleFleet {
       if (vehicle === player.vehicle) {
         controls = { throttle: input.gamepad ? (input.triggerThrottle || 0) - (axes.z > 0 ? axes.z : 0) : -axes.z,
           brake: input.gamepad ? input.triggerBrake || 0 : 0, steer: axes.x, handbrake: input.down('Space') };
-        if (player.transition) controls = { brake: 1 };
+        if (player.transition || player.incapacitated || player.health <= 0) controls = { brake: 1 };
         if (input.take('KeyH')) this.events.emit('horn', vehicle);
-        if (input.take('KeyR') && vehicle.flipped) { vehicle.flipped = false; vehicle.roll = 0; }
+        if (vehicle.flipped && input.take('KeyR')) { vehicle.flipped = false; vehicle.roll = 0; }
       }
       if (!vehicle.ai && vehicle !== player.vehicle) controls = {};
-      if (distance2D(vehicle, player) < 330 || vehicle === player.vehicle || vehicle.ai) integrateVehicle(vehicle, controls, dt, this.world.collision, this.world.wet || 0);
+      if (distance2D(vehicle, player) < 330 || vehicle === player.vehicle || vehicle.ai) {
+        const result = integrateVehicle(vehicle, controls, dt, this.world.collision, this.world.wet || 0);
+        if (result.fraction < 1 && result.impact > 2) this.events.emit('impact', result.impact);
+      }
     }
     const nearby = this.vehicles.filter(v => v.active && distance2D(v, player) < 160);
     for (let i = 0; i < nearby.length; i++) for (let j = i + 1; j < nearby.length; j++)

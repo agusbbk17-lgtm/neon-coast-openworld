@@ -7,7 +7,8 @@ export function drivingFrame(rig, player, input, dt, time) {
   const velocityYaw = speed > 3 ? heading(vehicle.vx, vehicle.vz) : p.yaw;
   const headingYaw = p.yaw + angleDelta(p.yaw, velocityYaw) * 0.35;
   if (rig.freeLookAge > 2) rig.yaw = dampAngle(rig.yaw, headingYaw, 4.5, dt);
-  const yaw = rig.yaw + (input.down('KeyB') ? Math.PI : 0);
+  rig.behindAngle = dampAngle(rig.behindAngle || 0, input.down('KeyB') ? Math.PI : 0, 10, dt);
+  const yaw = rig.yaw + rig.behindAngle;
   const presetScale = { Near: 0.79, Medium: 1, Far: 1.26 }[rig.preset];
   const back = vehicle.config.length * (bike ? 1.6 : 1.25) * presetScale * (1 + normalized * 0.15);
   const up = bike ? 1.6 : 1.3 + vehicle.config.height * 0.55;

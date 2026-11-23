@@ -13,7 +13,7 @@ export class HUD {
       <div class="map-widget"><canvas id="minimap" width="230" height="190" aria-label="Rotating minimap and GPS route"></canvas><div class="vitals"><i id="health"></i><i id="armor"></i></div><div class="map-caption">SOLMAR BAY <span>M · MAP</span></div></div>
       <div class="speed-widget" id="speed-widget"><div id="car-name"></div><b id="speed">000</b><span>KM/H <strong id="gear">1</strong></span><div class="car-health"><i id="car-health"></i></div></div>
       <div class="radio-widget" id="radio"><span class="radio-icon">♫</span><div><b id="station"></b><small id="track"></small></div><span class="key">Q</span></div>
-      <div id="prompt" class="prompt"></div><div id="crosshair" hidden><i></i><i></i><i></i><i></i></div><div id="hit-marker" hidden>×</div>
+      <div id="prompt" class="prompt"></div><div id="crosshair" hidden><i></i><i></i><i></i><i></i></div><div id="scope" hidden></div><div id="hit-marker" hidden>×</div>
       <div id="subtitles" role="status" aria-live="polite"></div><div id="cinema-title"></div><div id="phone" hidden><small>V E R V E · MOBILE</small><b>17:35</b><p>MARA VALE</p><span>Stay on the road. We'll talk.</span></div>
       <div class="letterbox" id="letterbox"><i></i><i></i></div><pre class="debug" id="debug"></pre>
     </section><section id="menu" hidden></section><section id="death-screen" hidden></section>`;
@@ -39,6 +39,7 @@ export class HUD {
     const nearby = !car && g.fleet.nearest();
     n.prompt.textContent = p.cover ? 'C · LEAVE COVER  /  RMB · PEEK' : car ? 'E · EXIT   SPACE · HANDBRAKE   V · CAMERA' : nearby ? 'E · ENTER ' + nearby.config.name.toUpperCase() : 'SHIFT · SPRINT   RMB · AIM   ESC · PAUSE';
     n.crosshair.hidden = !p.aiming || Boolean(car); n['hit-marker'].hidden = !(g.combat?.hitTimer > 0);
+    n.scope.hidden = g.rig.mode !== 'scope';
     const cinematic = g.director.letterbox || g.rig.cinematic;
     n.letterbox.classList.toggle('active', cinematic); n.letterbox.style.setProperty('--bar-size', Math.max(0, (innerHeight - innerWidth / 2.39) / 2) + 'px');
     n['cinema-title'].textContent = g.director.title; n.subtitles.textContent = g.missions?.subtitle || g.director.subtitle || '';

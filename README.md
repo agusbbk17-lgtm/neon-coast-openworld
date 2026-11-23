@@ -15,6 +15,12 @@ M4 adds 28 moving lane-following traffic cars, synchronized green/yellow/red
 intersection lights, a connected sidewalk/crossing graph, 62 seeded walkers,
 car/gunshot reactions, witness-call events, ejected carjack drivers and an
 instanced articulated crowd. Sidewalk clearance and foot grounding were fixed.
+M5 adds fists/bat, pistol/SMG/shotgun, grenades and an optional scoped precision
+weapon; hitscan/spread/headshots/armor/reload, pooled flashes/tracers/smoke,
+instanced wall decals, tyre/engine damage and explosions. Wanted 1–5 responds
+with chasing/ramming cruisers, armed officers/SWAT and three-star roadblocks;
+breaking line of sight starts a visible search timer. Cover/peek and
+Wasted/Busted respawns are connected to gameplay.
 
 ## Run locally
 
@@ -37,6 +43,9 @@ hold Left Alt while standing still to inspect.
 E/F enters or exits a nearby vehicle; WASD drives; Space is the handbrake;
 hold B looks behind; T toggles the driver's phone camera; H horns (sound in M3).
 Q cycles Sunline / Backlot / Tidepool / Off; M opens the map; Esc pauses.
+LMB fires or swings; RMB aims; R reloads; 1–5 select the main weapons;
+mouse wheel also reaches grenades and the scoped Monarch. C crouches or takes
+nearby wall cover; aim peeks, X swaps shoulders, sprint/move leaves cover.
 Hold V in a vehicle toggles cinematic shots. Camera, FOV, sensitivity, quality,
 automatic adaptation, volumes and reduce motion are configurable in Settings.
 
@@ -101,6 +110,17 @@ pedestrians moved during a ten-second fixed simulation; camera/drive/settings
 regressions also passed. The genuine High render used 262 draw calls with
 zero console errors, warnings and external requests. Traffic AI is time-sliced;
 crowd geometry is instanced in two draws, with interpolated poses.
+
+M5: 29 unit tests passed. Browser combat checks eliminated a rival with aimed
+shots, consumed/reloaded ammo, verified first-person scope FOV 25, swung the
+bat, threw a timed grenade, entered/exited collision-safe cover, exercised
+Wasted/Busted recovery and spawned four cruisers plus a roadblock at three
+stars. The combat screenshot used 434 High draw calls with zero errors or
+warnings. The walking/driving/settings/traffic regression also passed.
+
+```sh
+LP_NUM_THREADS=1 LIBGL_ALWAYS_SOFTWARE=1 SOLMAR_TEST_GPU=mesa xvfb-run -a node scripts/combat-check.mjs
+```
 
 ## License
 

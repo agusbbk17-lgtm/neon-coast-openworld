@@ -20,6 +20,11 @@ import { readSave, writeSave } from './core/save.js';
 import { TrafficSignals } from './world/signals.js';
 import { Traffic } from './systems/traffic.js';
 import { Pedestrians } from './entities/pedestrians.js';
+import { WantedSystem } from './systems/wanted.js';
+import { CombatSystem } from './systems/combat.js';
+import { CoverSystem } from './systems/cover.js';
+import { PoliceResponse } from './entities/police.js';
+import { RespawnSystem } from './systems/death.js';
 
 const params = new URLSearchParams(location.search), canvas = document.querySelector('#viewport');
 const fatal = document.querySelector('#fatal'), startedAt = performance.now();
@@ -57,8 +62,11 @@ function boot(context) {
   const loop = new FixedLoop(dt => {
     time += dt; input.poll(Boolean(player.vehicle)); rig.handle(input, player, dt);
     if (game.menus) game.menus.settings.camera = rig.preset;
+    game.cover.handle(input);
     player.update(dt, input, rig.yaw);
-    game.traffic.update(dt); fleet.update(dt, input); game.pedestrians.update(dt); world.update(dt, time, player); director.update(dt); notifyTimer -= dt;
+    game.cover.update(input); game.traffic.update(dt); fleet.update(dt, input); game.pedestrians.update(dt);
+    game.combat.update(dt, input); game.police.update(dt); game.death.update(dt);
+    world.update(dt, time, player); director.update(dt); notifyTimer -= dt;
     routeTimer -= dt; if (routeTimer <= 0 && game.waypoint) { game.setWaypoint(game.waypoint); routeTimer = 1; }
     audio.update(dt, game); radio.update(game); saveTimer -= dt;
     if (saveTimer <= 0 && game.hasStarted) { game.save(); saveTimer = 12; }
@@ -66,7 +74,7 @@ function boot(context) {
   }, (alpha, dt, elapsed) => {
     if (game.menus.isOpen) director.update(dt);
     const renderTime = Math.max(0, time - loop.step + alpha * loop.step);
-    fleet.render(alpha, renderTime); game.pedestrians.render(alpha, renderTime); game.signals.render(); player.render(alpha, renderTime); rig.update(dt, player, input, renderTime); world.render(renderTime, camera);
+    fleet.render(alpha, renderTime); game.pedestrians.render(alpha, renderTime); game.signals.render(); game.combat.render(); player.render(alpha, renderTime); rig.update(dt, player, input, renderTime); world.render(renderTime, camera);
     renderer.info.reset(); postfx.render(scene, camera, time, player.speed, world.lighting.night, rig.reduceMotion);
     stats.drawCalls = renderer.info.render.calls; stats.triangles = renderer.info.render.triangles;
     frames++; sampleTime += elapsed; if (sampleTime >= 1) { stats.fps = frames / sampleTime; frames = sampleTime = 0; }
@@ -78,7 +86,7 @@ function boot(context) {
   window.addEventListener('resize', resize); resize();
   canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); loop.paused = true; fatal.hidden = false; fatal.textContent = 'Graphics context lost. Waiting for restoration…'; });
   canvas.addEventListener('webglcontextrestored', () => { fatal.hidden = true; loop.paused = false; resize(); });
-  const game = window.__game = { ready: false, version: 'M4', params, scene, renderer, camera, world, player, input, rig, quality, postfx, events, stats, loop, fleet, environment,
+  const game = window.__game = { ready: false, version: 'M5', params, scene, renderer, camera, world, player, input, rig, quality, postfx, events, stats, loop, fleet, environment,
     graph, director, audio, radio, hasStarted: false, waypoint: null, route: [],
     notify, get time() { return time; },
     setWaypoint(point) { this.waypoint = point; this.route = graph.path(player, point).concat(point); },
@@ -94,7 +102,7 @@ function boot(context) {
     },
     state() { return { player: { x: player.x, y: player.y, z: player.z, state: player.state, vehicle: player.vehicle?.type || null },
       vehicle: player.vehicle ? { speed: player.vehicle.speed, gear: player.vehicle.gear, health: player.vehicle.health } : null,
-      camera: rig.debug, stats: { ...stats }, seed: world.seed }; },
+      camera: rig.debug, wanted: { stars: this.wanted.stars, searching: this.wanted.searching, searchLeft: this.wanted.searchLeft }, weapon: this.combat.current.name, stats: { ...stats }, seed: world.seed }; },
     step(seconds, controls = {}) {
       input.injected = controls; let clipped = false;
       for (let tick = 0; tick < Math.round(seconds * 60); tick++) {
@@ -105,13 +113,14 @@ function boot(context) {
       input.injected = null; this.hud.render(); return { clipped, state: this.state() };
     },
     renderFrame() {
-      fleet.render(1, time); this.pedestrians.render(1); this.signals.render(); player.render(1, time); rig.update(1 / 60, player, input, time); world.render(time, camera);
+      fleet.render(1, time); this.pedestrians.render(1); this.signals.render(); this.combat.render(); player.render(1, time); rig.update(1 / 60, player, input, time); world.render(time, camera);
       renderer.info.reset(); postfx.render(scene, camera, time, player.speed, world.lighting.night, rig.reduceMotion);
       stats.drawCalls = renderer.info.render.calls; stats.triangles = renderer.info.render.triangles;
       this.hud.render(); if (notifyTimer < 0) document.querySelector('#notification').classList.remove('visible');
     },
   };
   game.signals = new TrafficSignals(scene, graph, world.materials); game.traffic = new Traffic(game, game.signals); game.pedestrians = new Pedestrians(game, game.signals);
+  game.wanted = new WantedSystem(); game.combat = new CombatSystem(game); game.cover = new CoverSystem(game); game.police = new PoliceResponse(game); game.death = new RespawnSystem(game);
   game.setWaypoint({ x: 320, z: -610 });
   game.hud = new HUD(ui, game, params.has('debug')); game.menus = new Menus(game, game.hud);
   loop.beforeFrame = dt => { input.poll(Boolean(player.vehicle)); game.menus.handle(input, dt); if (game.menus.isOpen) input.endStep(); };

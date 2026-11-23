@@ -32,6 +32,10 @@ export class CollisionWorld {
         for (const box of this.cells.get(i + ':' + j) || []) found.add(box);
     return found;
   }
+  remove(box) {
+    this.solids = this.solids.filter(solid => solid !== box);
+    for (const [key, values] of this.cells) { const next = values.filter(solid => solid !== box); if (next.length) this.cells.set(key, next); else this.cells.delete(key); }
+  }
   sweep(start, end, radius = 0.25) {
     let fraction = 1, hits = 0, solid = null;
     for (const box of this.query(Math.min(start.x, end.x) - radius, Math.min(start.z, end.z) - radius,

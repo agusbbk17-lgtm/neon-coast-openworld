@@ -36,7 +36,7 @@ export class Pedestrians {
     this.people.push(person); return person;
   }
   frighten(point, radius) {
-    for (const npc of this.people) if (npc.health > 0 && npc.faction === 'civilian' && distance2D(npc, point) < radius) {
+    for (const npc of this.people) if (npc.active && npc.health > 0 && npc.faction === 'civilian' && distance2D(npc, point) < radius) {
       npc.fear = 8; npc.threat = { x: point.x, z: point.z }; npc.state = 'flee';
       if (this.rng.next() < 0.10) this.game.events.emit('witness-call', { npc, point });
     }
@@ -66,10 +66,11 @@ export class Pedestrians {
         }
         npc.state = 'wander';
       }
-      const length = Math.hypot(dx, dz); if (length > 0.01) { dx = dx / length * pace; dz = dz / length * pace; }
+      const length = Math.hypot(dx, dz), targetYaw = length > 0.01 ? heading(dx, dz) : npc.yaw;
+      if (length > 0.01) { dx = dx / length * pace; dz = dz / length * pace; }
       npc.vx += (dx - npc.vx) * damping(8, dt); npc.vz += (dz - npc.vz) * damping(8, dt);
       const move = g.world.collision.move(npc, npc.vx * dt, npc.vz * dt, 0.28); npc.speed = Math.hypot(move.dx, move.dz) / dt;
-      if (length > 0.01) npc.yaw = dampAngle(npc.yaw, heading(dx, dz), 8, dt);
+      if (length > 0.01) npc.yaw = dampAngle(npc.yaw, targetYaw, 8, dt);
       npc.y = walkSurfaceHeight(npc.x, npc.z);
       if (dangerous && distance2D(dangerous, npc) < 1.25 && Math.abs(dangerous.speed) > 8) {
         npc.health = 0; if (dangerous === g.player.vehicle) g.events.emit('crime', { severity: 25, x: npc.x, z: npc.z });

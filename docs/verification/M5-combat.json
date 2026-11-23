@@ -1,0 +1,64 @@
+{
+  "shots": {
+    "health": 0,
+    "wanted": 2,
+    "ammo": 8
+  },
+  "reload": {
+    "ammo": 12,
+    "reserve": 84
+  },
+  "scope": {
+    "mode": "scope",
+    "fov": 25.000002250703496,
+    "distance": 0.04
+  },
+  "grenade": {
+    "active": false,
+    "sparks": 77
+  },
+  "cover": {
+    "active": true,
+    "clipped": false,
+    "exited": true
+  },
+  "chase": {
+    "stars": 3,
+    "cruisers": 4,
+    "blocks": 2
+  },
+  "state": {
+    "player": {
+      "x": 329,
+      "y": -0.0049999999999999975,
+      "z": 359,
+      "state": "aim",
+      "vehicle": null
+    },
+    "vehicle": null,
+    "camera": {
+      "mode": "aim",
+      "preset": "Medium",
+      "distance": 1.64,
+      "fov": 45.6,
+      "collisionHits": 0
+    },
+    "wanted": {
+      "stars": 3,
+      "searching": false,
+      "searchLeft": 18
+    },
+    "weapon": "CITRINE PISTOL",
+    "stats": {
+      "fps": 0,
+      "drawCalls": 434,
+      "triangles": 376964,
+      "bootMs": 4676.899999976158,
+      "errors": [],
+      "warnings": []
+    },
+    "seed": "solmar-26"
+  },
+  "errors": [],
+  "warnings": []
+}

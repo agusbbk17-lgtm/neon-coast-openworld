@@ -82,6 +82,7 @@ export class Menus {
     this.hud.fullMap.attach(this.root.querySelector('#full-map')); this.root.querySelector('#map-back').onclick = () => this.close();
   }
   handle(input, dt) {
+    if (this.game.death?.phase) { if (input.pressed.delete('Escape')) this.game.death.timer = 3.5; return; }
     this.padCooldown = Math.max(0, this.padCooldown - dt);
     if (input.pressed.delete('Escape')) { if (this.isOpen && this.game.hasStarted) this.close(); else this.show(this.game.hasStarted ? 'pause' : 'main'); }
     if (input.pressed.delete('KeyM')) { if (this.isOpen && this.page === 'map') this.close(); else this.show('map'); }

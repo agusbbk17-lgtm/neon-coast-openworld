@@ -16,6 +16,7 @@ export class CameraRig {
     this.vHeld = -1; this.vToggled = false;
     this.handheld = true; this.director = null; this.fallbackVehicle = null;
     this.trackingVehicle = null; this.lastVehiclePosition = new THREE.Vector3();
+    this.behindAngle = 0;
   }
   setPreset(name) { if (CAMERA_PRESETS[name]) this.preset = name; }
   cycle() { this.setPreset(PRESET_NAMES[(PRESET_NAMES.indexOf(this.preset) + 1) % PRESET_NAMES.length]); }
@@ -46,11 +47,17 @@ export class CameraRig {
     let back = lerp(preset.back, 1.35, this.aimBlend), side = lerp(preset.right, 0.52, this.aimBlend) * this.shoulder;
     const height = preset.up + (player.crouched ? -0.4 : 0); this.pivot.set(p.x, p.y + height, p.z);
     if (inspect) { this.mode = 'inspect'; back = 0.05; side = 0; }
+    if (player.scoped && player.aiming && !player.vehicle) { this.mode = 'scope'; back = 0.04; side = 0; this.pivot.y = p.y + 1.65; }
     const sin = Math.sin(this.yaw), cos = Math.cos(this.yaw);
     let desired = new THREE.Vector3(p.x + sin * back * Math.cos(this.pitch) + cos * side,
       this.pivot.y + Math.sin(this.pitch) * back, p.z + cos * back * Math.cos(this.pitch) - sin * side);
     let target = new THREE.Vector3(p.x - sin * 8, this.pivot.y - Math.sin(this.pitch) * 8, p.z - cos * 8);
     let goalFov = inspect ? this.baseFov : lerp(this.baseFov + (player.state === 'sprint' ? 6 : 0), 45, this.aimBlend), roll = 0;
+    if (this.mode === 'scope') { goalFov = 25; if (!this.reduceMotion) target.y += Math.sin(time * 1.7) * 0.025; }
+    if (player.cover && !player.vehicle) {
+      const tangent = new THREE.Vector3(-player.cover.normal.z, 0, player.cover.normal.x).multiplyScalar(this.shoulder * this.aimBlend * 0.6);
+      this.pivot.add(tangent); desired.add(tangent); target.add(tangent);
+    }
     if (player.vehicle || player.transition) {
       const vehicle = player.vehicle || player.transition.vehicle, vp = vehicle.rendered;
       if (this.trackingVehicle === vehicle) this.smoothed.add(new THREE.Vector3(vp.x, vp.y, vp.z).sub(this.lastVehiclePosition));
@@ -67,7 +74,7 @@ export class CameraRig {
     this.oldRotation.copy(this.camera.quaternion); this.camera.lookAt(target); this.camera.rotateZ(roll); this.desiredRotation.copy(this.camera.quaternion);
     if (!first) this.camera.quaternion.copy(this.oldRotation).slerp(this.desiredRotation, damping(this.rotationLag, dt));
     this.fov = lerp(this.fov, goalFov, damping(16, dt)); this.camera.fov = this.fov; this.camera.updateProjectionMatrix();
-    const distance = this.camera.position.distanceTo(this.pivot); player.fade(inspect || this.phone ? 0 : clamp((distance - 0.2) / 0.4, 0, 1));
+    const distance = this.camera.position.distanceTo(this.pivot); player.fade(inspect || this.phone || this.mode === 'scope' ? 0 : clamp((distance - 0.2) / 0.4, 0, 1));
     this.debug = { mode: this.mode, preset: this.preset, distance: +distance.toFixed(2), fov: +this.fov.toFixed(1), collisionHits: this.collision.hits };
   }
   reset(player) { this.started = false; this.yaw = player.yaw; this.pitch = 0.12; this.freeLookAge = 5; }

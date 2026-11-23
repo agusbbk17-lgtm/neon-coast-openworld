@@ -52,7 +52,7 @@ export class Player {
   }
   snapshot() { this.previous = { x: this.x, y: this.y, z: this.z, yaw: this.yaw }; }
   update(dt, input, cameraYaw) {
-    this.snapshot(); if (this.vehicle || this.transition || this.health <= 0) return;
+    this.snapshot(); if (this.vehicle || this.transition || this.health <= 0 || this.incapacitated) return;
     const axes = input.axes(), magnitude = Math.min(1, Math.hypot(axes.x, axes.z)); this.aiming = input.down('Mouse2');
     if (input.take('KeyC')) this.crouched = !this.crouched;
     const sprint = input.down('ShiftLeft') && !this.aiming && !this.crouched, pace = this.crouched ? 2.1 : this.aiming ? 2.7 : sprint ? 8.6 : 4.5;
@@ -71,6 +71,7 @@ export class Player {
   render(alpha, time) {
     this.rendered = interpolateTransform(this.previous, this, alpha); this.mesh.position.set(this.rendered.x, this.rendered.y, this.rendered.z); this.mesh.rotation.y = this.rendered.yaw;
     animateHumanoid(this.rig, this.health <= 0 ? 'death' : this.vehicle ? 'drive' : this.state, time, this.speed, this.aiming);
+    if (this.recoil > 0 && this.aiming) this.rig.limbs.right.arm.rotation.x += this.recoil * 0.15;
   }
   fade(opacity) {
     for (const material of this.rig.materials) {

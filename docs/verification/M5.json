@@ -1,0 +1,44 @@
+{
+  "milestone": "M5",
+  "browser": "159.0.8154.6",
+  "renderer": "ANGLE (Mesa, llvmpipe (LLVM 15.0.7 128 bits), OpenGL 4.5)",
+  "state": {
+    "player": {
+      "x": 326,
+      "y": 0.28,
+      "z": 355,
+      "state": "drive",
+      "vehicle": "sports"
+    },
+    "vehicle": {
+      "speed": 0,
+      "gear": 1,
+      "health": 100
+    },
+    "camera": {
+      "mode": "vehicle",
+      "preset": "Medium",
+      "distance": 5.65,
+      "fov": 60,
+      "collisionHits": 0
+    },
+    "wanted": {
+      "stars": 0,
+      "searching": false,
+      "searchLeft": 0
+    },
+    "weapon": "CITRINE PISTOL",
+    "stats": {
+      "fps": 0,
+      "drawCalls": 268,
+      "triangles": 366584,
+      "bootMs": 5339.4000000059605,
+      "errors": [],
+      "warnings": []
+    },
+    "seed": "solmar-26"
+  },
+  "errors": [],
+  "warnings": [],
+  "external": []
+}
