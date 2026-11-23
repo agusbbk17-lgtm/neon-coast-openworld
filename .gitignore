@@ -1,0 +1,8 @@
+out/
+node_modules/
+test-results/
+.env*
+*.log
+*.tar.gz
+*.bundle
+.DS_Store

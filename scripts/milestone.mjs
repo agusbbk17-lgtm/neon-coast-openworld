@@ -1,0 +1,49 @@
+import { launchBrowser, startServer } from './browser.mjs';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+
+const milestone = process.argv[2] || 'M1';
+console.log('Launching milestone browser:', milestone);
+const stopServer = await startServer();
+const browser = await launchBrowser(); console.log('Browser ready:', browser.version());
+const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+const errors = [], warnings = [], external = [];
+page.on('pageerror', error => { errors.push(error.message); console.log('Runtime error:', error.message); });
+page.on('console', message => { if (message.type() === 'error') { errors.push(message.text()); console.log('Console error:', message.text()); } if (message.type() === 'warning') { warnings.push(message.text()); console.log('Console warning:', message.text()); } });
+page.on('request', request => { if (!request.url().startsWith('http://127.0.0.1:8080') && !request.url().startsWith('data:')) external.push(request.url()); });
+try {
+  console.log('Opening Solmar Bay');
+  await page.goto('http://127.0.0.1:8080/?seed=solmar-26&quality=low&noaudio&debug&testmode', { waitUntil: 'load' });
+  console.log('Page loaded');
+  console.log('Initial state:', await page.evaluate(() => ({ ready: Boolean(window.__game?.ready), time: window.__game?.time, fatal: document.querySelector('#fatal').textContent })));
+  await page.waitForFunction(() => window.__game?.ready, { timeout: 30000 });
+  await page.evaluate(() => window.__game.step(0.4));
+  console.log('Boot:', await page.evaluate(() => window.__game.state()));
+  const start = await page.evaluate(() => window.__game.player.z);
+  const walked = await page.evaluate(() => window.__game.step(1.5, { z: -1 }));
+  assert.equal(walked.clipped, false);
+  const end = await page.evaluate(() => window.__game.player.z); assert.ok(end < start - 1, 'W moves the player');
+  for (const preset of ['Far', 'Near', 'Medium']) {
+    await page.keyboard.press('v');
+    await page.evaluate(() => window.__game.step(0.15));
+    assert.equal(await page.evaluate(() => window.__game.rig.preset), preset);
+  }
+  await page.evaluate(() => { window.__game.input.keys.add('Mouse2'); });
+  await page.evaluate(() => window.__game.step(0.4));
+  assert.equal(await page.evaluate(() => window.__game.rig.mode), 'aim');
+  await page.evaluate(() => { window.__game.input.keys.delete('Mouse2'); });
+  const collision = await page.evaluate(() => {
+    const g = window.__game, b = g.world.buildings[2]; g.teleport(b.x, b.z + b.depth / 2 + 0.55, Math.PI);
+    g.player.render(1, g.time); g.rig.update(1 / 60, g.player, g.input, g.time);
+    return { hits: g.rig.collision.hits, clipped: g.world.collision.contains(g.camera.position, 0.22) };
+  });
+  assert.ok(collision.hits > 0, 'wall triggers camera collision'); assert.equal(collision.clipped, false, 'camera stays outside solid');
+  await page.evaluate(() => { const g = window.__game; g.teleport(329, 359, 0); g.quality.auto = false; g.step(0.4); g.renderFrame(); });
+  await page.waitForTimeout(1000);
+  mkdirSync('test-results', { recursive: true });
+  await page.screenshot({ path: `test-results/${milestone}.jpg`, type: 'jpeg', quality: 85 });
+  const gpu = await page.evaluate(() => { const gl = window.__game.renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info'); return ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'Unknown'; });
+  const report = { milestone, browser: browser.version(), renderer: gpu, state: await page.evaluate(() => window.__game.state()), errors, warnings, external };
+  writeFileSync(`test-results/${milestone}.json`, JSON.stringify(report, null, 2)); console.log(JSON.stringify(report, null, 2));
+  assert.deepEqual(errors, []); assert.deepEqual(warnings, []); assert.deepEqual(external, []);
+} finally { await browser.close(); stopServer(); }

@@ -1,0 +1,18 @@
+:root { color-scheme:dark; --ink:#11252c; --mint:#8be7d0; --gold:#ffd08c; --paper:#f5ecd9; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+* { box-sizing:border-box; } body { margin:0; overflow:hidden; background:#132832; color:var(--paper); }
+button,input,select { font:inherit; } button { cursor:pointer; border:1px solid #fff3; background:#19383dee; color:var(--paper); padding:14px 22px; border-radius:3px; }
+button:hover,button:focus-visible { border-color:var(--mint); background:#285153; outline:none; }
+button.primary { background:var(--mint); color:var(--ink); border:0; font-weight:750; }
+#viewport { display:block; width:100vw; height:100vh; touch-action:none; }
+#loading { position:fixed; inset:0; background:#11252c; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:50; transition:opacity .5s; }
+.brand { font-size:clamp(44px,6vw,90px); font-weight:850; letter-spacing:-.065em; line-height:.92; color:var(--gold); }
+.brand span { display:block; color:var(--paper); font-size:.71em; letter-spacing:.13em; margin-top:14px; }
+.loader-track { width:220px; height:2px; background:#fff2; overflow:hidden; margin-top:12px; }
+.loader-track i { display:block; background:var(--mint); width:50%; height:100%; animation:load 1s ease-in-out infinite alternate; }
+@keyframes load { from{transform:translateX(-80%)}to{transform:translateX(170%)} }
+#notification { position:fixed; left:50%; bottom:16%; transform:translateX(-50%); padding:11px 20px; max-width:650px; text-align:center; background:#11252ce8; border-left:3px solid var(--mint); opacity:0; transition:opacity .2s; pointer-events:none; z-index:40; }
+#notification.visible { opacity:1; } #fatal { position:fixed; inset:15%; padding:40px; background:#11252c; z-index:100; border:1px solid var(--gold); }
+[hidden] { display:none!important; } .prototype { position:fixed; top:24px; left:28px; pointer-events:none; text-shadow:0 2px 4px #0008; }
+.prototype h1 { margin:0; font-size:22px; letter-spacing:.04em; } .prototype p { font-size:12px; letter-spacing:.15em; color:var(--gold); }
+.controls { position:fixed; bottom:25px; left:28px; font-size:12px; background:#11252cbb; padding:12px 18px; }
+.debug { position:fixed; right:15px; top:100px; background:#0d2427d9; font:11px monospace; white-space:pre; padding:10px; pointer-events:none; }

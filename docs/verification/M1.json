@@ -1,0 +1,32 @@
+{
+  "milestone": "M1",
+  "browser": "159.0.8154.6",
+  "renderer": "ANGLE (Mesa, llvmpipe (LLVM 15.0.7 128 bits), OpenGL 4.5)",
+  "state": {
+    "player": {
+      "x": 328.99999999634184,
+      "y": 0.18,
+      "z": 358.9999996960923,
+      "state": "idle"
+    },
+    "camera": {
+      "mode": "foot",
+      "preset": "Medium",
+      "distance": 2.59,
+      "fov": 59.8,
+      "collisionHits": 0
+    },
+    "stats": {
+      "fps": 0,
+      "drawCalls": 118,
+      "triangles": 189614,
+      "bootMs": 7073.399999976158,
+      "errors": [],
+      "warnings": []
+    },
+    "seed": "solmar-26"
+  },
+  "errors": [],
+  "warnings": [],
+  "external": []
+}
