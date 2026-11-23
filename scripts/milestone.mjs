@@ -38,7 +38,26 @@ try {
     return { hits: g.rig.collision.hits, clipped: g.world.collision.contains(g.camera.position, 0.22) };
   });
   assert.ok(collision.hits > 0, 'wall triggers camera collision'); assert.equal(collision.clipped, false, 'camera stays outside solid');
-  await page.evaluate(() => { const g = window.__game; g.teleport(329, 359, 0); g.quality.auto = false; g.step(0.4); g.renderFrame(); });
+  if (milestone !== 'M1') {
+    await page.evaluate(() => { window.__game.teleport(329, 359, 0); window.__game.step(0.3); });
+    await page.keyboard.press('e');
+    await page.evaluate(() => window.__game.step(0.18));
+    assert.equal(await page.evaluate(() => window.__game.player.transition?.mode), 'enter');
+    await page.evaluate(() => window.__game.step(0.25));
+    assert.equal(await page.evaluate(() => window.__game.player.vehicle?.type), 'sports');
+    const driven = await page.evaluate(() => window.__game.step(8, { z: -1 }));
+    assert.equal(driven.clipped, false, 'chase camera stays outside buildings');
+    assert.ok(driven.state.vehicle.speed > 35, 'car accelerates');
+    assert.ok(driven.state.camera.fov > 68, 'driving FOV scales with speed');
+    await page.keyboard.press('t'); await page.evaluate(() => window.__game.step(0.25));
+    assert.equal(await page.evaluate(() => window.__game.rig.mode), 'phone');
+    await page.keyboard.press('t'); await page.evaluate(() => window.__game.step(3, { z: 1 }));
+    await page.keyboard.press('e'); await page.evaluate(() => window.__game.step(0.45));
+    assert.equal(await page.evaluate(() => window.__game.player.vehicle), null, 'vehicle exit completes');
+    assert.equal(await page.evaluate(() => window.__game.player.transition), null);
+    await page.evaluate(() => { const g = window.__game; g.fleet.enter(g.fleet.vehicles[0], true); g.teleport(326, 355, 0); g.step(0.6); });
+  }
+  await page.evaluate(() => { const g = window.__game; if (!g.player.vehicle) g.teleport(329, 359, 0); g.quality.auto = false; g.step(0.4); g.quality.set('high'); g.renderFrame(); });
   await page.waitForTimeout(1000);
   mkdirSync('test-results', { recursive: true });
   await page.screenshot({ path: `test-results/${milestone}.jpg`, type: 'jpeg', quality: 85 });

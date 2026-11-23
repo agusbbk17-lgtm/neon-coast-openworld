@@ -4,6 +4,9 @@ An original procedural third-person open-world game set in Solmar Bay.
 Built in eight verified milestones. M1 includes the golden-hour coastal city,
 articulated character, fixed-step locomotion, third-person camera presets,
 collision, shoulder aim and procedural rendering.
+M2 adds eight original vehicle classes, clearcoat paint and generated environment
+reflections, engine/gears, drift/handbrake, suspension, OBB impulses, car entry
+and exit arcs, speed-scaled chase framing and the permitted driver phone view.
 
 ## Run locally
 
@@ -23,6 +26,8 @@ fonts, models, textures, sound files, CDN or telemetry are loaded at runtime.
 WASD move; click for mouse look; Shift sprint; Space jump; C crouch;
 V cycles Near/Medium/Far; right mouse aims; X swaps shoulders;
 hold Left Alt while standing still to inspect.
+E/F enters or exits a nearby vehicle; WASD drives; Space is the handbrake;
+hold B looks behind; T toggles the driver's phone camera; H horns (sound in M3).
 
 ## Rendering and authorship
 
@@ -51,6 +56,13 @@ LP_NUM_THREADS=1 LIBGL_ALWAYS_SOFTWARE=1 SOLMAR_TEST_GPU=mesa xvfb-run -a node s
 ```
 
 Submission has not yet been made; a local check is not a remote acceptance.
+
+M2: 12 unit tests passed (including acceleration/braking, drift, OBB separation
+and building sweeps). Browser checks entered the sports car through the eased
+arc, drove eight simulated seconds, verified speed-scaled FOV and collision,
+used the driver phone view and exited. A genuine High render used 195 draw
+calls, with zero console errors, warnings or external requests. See
+`docs/verification/M2.jpg`. These deterministic checks do not measure live FPS.
 
 ## License
 
