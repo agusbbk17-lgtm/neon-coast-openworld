@@ -1,0 +1,46 @@
+{
+  "delivery": {
+    "state": "complete",
+    "ticks": 1612,
+    "clipped": false,
+    "completed": [
+      "first-delivery"
+    ],
+    "z": -601.0346659644728
+  },
+  "rival": {
+    "health": 0,
+    "state": "active",
+    "step": "escape",
+    "ticks": 507,
+    "clipped": false,
+    "ammo": 21,
+    "player": {
+      "x": 205.30907786239146,
+      "z": -689.862885608484,
+      "health": 100,
+      "carHealth": 100
+    },
+    "target": {
+      "x": 105.54575160035716,
+      "z": -690.0007615633282
+    }
+  },
+  "bankWalk": {
+    "x": -125.00611481667163,
+    "clipped": false
+  },
+  "bank": {
+    "stage": "escape",
+    "stars": 3,
+    "checkpoint": 2
+  },
+  "completed": [
+    "first-delivery",
+    "heat-wave",
+    "vault-run"
+  ],
+  "escapeFixture": "Unseen LOS supplied to the real WantedSystem; not a manual evasion playthrough.",
+  "errors": [],
+  "warnings": []
+}

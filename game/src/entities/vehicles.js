@@ -22,7 +22,7 @@ export class Vehicle {
 export class VehicleFleet {
   constructor(scene, world, player, events, notify) {
     this.scene = scene; this.world = world; this.player = player; this.events = events; this.notify = notify;
-    this.vehicles = []; this.nextId = 1; this.lastEntered = null;
+    this.vehicles = []; this.nextId = 1; this.lastEntered = null; this.enterSerial = 0;
     this.spawn('sports', 326, 355, 0, '#e79a44');
     const rng = new Random(world.seed + ':parked');
     const poses = [[310, 320], [310, 250], [329, 178], [191, 310], [71, 420], [-49, 340], [-171, 150], [329, -150]];
@@ -43,7 +43,7 @@ export class VehicleFleet {
     if (vehicle.driver && vehicle.driver !== 'player') this.events.emit('carjack', { vehicle, driver: vehicle.driver });
     vehicle.ai = null; vehicle.driver = 'player'; vehicle.playerOwned = true; this.lastEntered = vehicle;
     player.aiming = false; player.crouched = false; player.cover = null;
-    if (immediate) { player.vehicle = vehicle; player.x = vehicle.x; player.z = vehicle.z; player.y = vehicle.y + 0.2; player.yaw = vehicle.yaw; player.snapshot(); this.events.emit('vehicle-enter', vehicle); return true; }
+    if (immediate) { player.vehicle = vehicle; player.x = vehicle.x; player.z = vehicle.z; player.y = vehicle.y + 0.2; player.yaw = vehicle.yaw; player.snapshot(); this.enterSerial++; this.events.emit('vehicle-enter', vehicle); return true; }
     player.transition = { mode: 'enter', vehicle, t: 0, from: { x: player.x, y: player.y, z: player.z } };
     return true;
   }
@@ -72,12 +72,13 @@ export class VehicleFleet {
     if (transition.t >= 0.35) {
       player.vehicle = transition.mode === 'enter' ? vehicle : null; player.transition = null; vehicle.doorOpen = 0;
       if (!player.vehicle) { vehicle.driver = null; player.speed = 0; player.velocity.x = player.velocity.z = 0; }
+      if (transition.mode === 'enter') this.enterSerial++;
       this.events.emit(transition.mode === 'enter' ? 'vehicle-enter' : 'vehicle-exit', vehicle);
     }
   }
   update(dt, input) {
     const player = this.player;
-    if (input.take('KeyE') || input.take('KeyF')) { if (player.vehicle) this.exit(); else this.enter(); }
+    if ((input.take('KeyE') || input.take('KeyF')) && !player.interacting) { if (player.vehicle) this.exit(); else this.enter(); }
     const axes = input.axes();
     for (const vehicle of this.vehicles) {
       vehicle.snapshot(); if (!vehicle.active) continue;

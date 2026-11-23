@@ -25,6 +25,8 @@ import { CombatSystem } from './systems/combat.js';
 import { CoverSystem } from './systems/cover.js';
 import { PoliceResponse } from './entities/police.js';
 import { RespawnSystem } from './systems/death.js';
+import { MissionSystem } from './systems/missions.js';
+import { groundHeight, walkSurfaceHeight } from './world/terrain.js';
 
 const params = new URLSearchParams(location.search), canvas = document.querySelector('#viewport');
 const fatal = document.querySelector('#fatal'), startedAt = performance.now();
@@ -62,10 +64,11 @@ function boot(context) {
   const loop = new FixedLoop(dt => {
     time += dt; input.poll(Boolean(player.vehicle)); rig.handle(input, player, dt);
     if (game.menus) game.menus.settings.camera = rig.preset;
+    game.missions.updateInputs(input); game.missions.preUpdate();
     game.cover.handle(input);
     player.update(dt, input, rig.yaw);
     game.cover.update(input); game.traffic.update(dt); fleet.update(dt, input); game.pedestrians.update(dt);
-    game.combat.update(dt, input); game.police.update(dt); game.death.update(dt);
+    game.combat.update(dt, input); game.police.update(dt); game.death.update(dt); game.missions.update(dt);
     world.update(dt, time, player); director.update(dt); notifyTimer -= dt;
     routeTimer -= dt; if (routeTimer <= 0 && game.waypoint) { game.setWaypoint(game.waypoint); routeTimer = 1; }
     audio.update(dt, game); radio.update(game); saveTimer -= dt;
@@ -75,6 +78,8 @@ function boot(context) {
     if (game.menus.isOpen) director.update(dt);
     const renderTime = Math.max(0, time - loop.step + alpha * loop.step);
     fleet.render(alpha, renderTime); game.pedestrians.render(alpha, renderTime); game.signals.render(); game.combat.render(); player.render(alpha, renderTime); rig.update(dt, player, input, renderTime); world.render(renderTime, camera);
+    postfx.focusStrength = director.active ? 5 : game.menus.isOpen ? 2 : 0.04;
+    postfx.focusDistance = camera.position.distanceTo(new THREE.Vector3(player.rendered.x, player.rendered.y + 0.8, player.rendered.z));
     renderer.info.reset(); postfx.render(scene, camera, time, player.speed, world.lighting.night, rig.reduceMotion);
     stats.drawCalls = renderer.info.render.calls; stats.triangles = renderer.info.render.triangles;
     frames++; sampleTime += elapsed; if (sampleTime >= 1) { stats.fps = frames / sampleTime; frames = sampleTime = 0; }
@@ -86,23 +91,30 @@ function boot(context) {
   window.addEventListener('resize', resize); resize();
   canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); loop.paused = true; fatal.hidden = false; fatal.textContent = 'Graphics context lost. Waiting for restoration…'; });
   canvas.addEventListener('webglcontextrestored', () => { fatal.hidden = true; loop.paused = false; resize(); });
-  const game = window.__game = { ready: false, version: 'M5', params, scene, renderer, camera, world, player, input, rig, quality, postfx, events, stats, loop, fleet, environment,
+  const game = window.__game = { ready: false, version: 'M6', params, scene, renderer, camera, world, player, input, rig, quality, postfx, events, stats, loop, fleet, environment,
     graph, director, audio, radio, hasStarted: false, waypoint: null, route: [],
     notify, get time() { return time; },
-    setWaypoint(point) { this.waypoint = point; this.route = graph.path(player, point).concat(point); },
+    setWaypoint(point) {
+      this.waypoint = point; if (!point) { this.route = []; return; }
+      const step = this.missions?.machine.step, approach = step?.target === point ? step.approach : null;
+      this.route = graph.path(player, approach || point).concat(approach ? [approach, point] : [point]);
+    },
     save() {
       return writeSave({ version: 1, seed: world.seed, player: { x: player.x, z: player.z, yaw: player.yaw, health: player.health,
         armor: player.armor, cash: player.cash, vehicle: player.vehicle?.type || null }, settings: this.menus?.settings,
         completed: [...(this.missions?.completed || [])], bags: [...(this.activities?.bags || [])], stunts: [...(this.activities?.stunts || [])] });
     },
     teleport(x, z, yaw = 0) {
-      player.x = x; player.z = z; player.yaw = yaw;
-      if (player.vehicle) { Object.assign(player.vehicle, { x, z, yaw, vx: 0, vz: 0, speed: 0 }); player.vehicle.snapshot(); }
+      player.x = x; player.z = z; player.yaw = yaw; player.vy = 0; player.speed = 0;
+      player.velocity.x = player.velocity.z = 0; player.grounded = true;
+      player.y = walkSurfaceHeight(x, z) - 0.055;
+      if (player.vehicle) { Object.assign(player.vehicle, { x, y: groundHeight(x, z) + 0.08, z, yaw, vx: 0, vz: 0, vy: 0, speed: 0 }); player.vehicle.snapshot(); player.y = player.vehicle.y + 0.2; }
       player.snapshot(); rig.reset(player);
     },
     state() { return { player: { x: player.x, y: player.y, z: player.z, state: player.state, vehicle: player.vehicle?.type || null },
       vehicle: player.vehicle ? { speed: player.vehicle.speed, gear: player.vehicle.gear, health: player.vehicle.health } : null,
-      camera: rig.debug, wanted: { stars: this.wanted.stars, searching: this.wanted.searching, searchLeft: this.wanted.searchLeft }, weapon: this.combat.current.name, stats: { ...stats }, seed: world.seed }; },
+      camera: rig.debug, wanted: { stars: this.wanted.stars, searching: this.wanted.searching, searchLeft: this.wanted.searchLeft }, weapon: this.combat.current.name,
+      mission: { id: this.missions.machine.definition?.id || null, state: this.missions.machine.state, step: this.missions.machine.index, completed: [...this.missions.completed] }, stats: { ...stats }, seed: world.seed }; },
     step(seconds, controls = {}) {
       input.injected = controls; let clipped = false;
       for (let tick = 0; tick < Math.round(seconds * 60); tick++) {
@@ -114,6 +126,8 @@ function boot(context) {
     },
     renderFrame() {
       fleet.render(1, time); this.pedestrians.render(1); this.signals.render(); this.combat.render(); player.render(1, time); rig.update(1 / 60, player, input, time); world.render(time, camera);
+      postfx.focusStrength = director.active ? 5 : this.menus.isOpen ? 2 : 0.04;
+      postfx.focusDistance = camera.position.distanceTo(new THREE.Vector3(player.rendered.x, player.rendered.y + 0.8, player.rendered.z));
       renderer.info.reset(); postfx.render(scene, camera, time, player.speed, world.lighting.night, rig.reduceMotion);
       stats.drawCalls = renderer.info.render.calls; stats.triangles = renderer.info.render.triangles;
       this.hud.render(); if (notifyTimer < 0) document.querySelector('#notification').classList.remove('visible');
@@ -121,6 +135,7 @@ function boot(context) {
   };
   game.signals = new TrafficSignals(scene, graph, world.materials); game.traffic = new Traffic(game, game.signals); game.pedestrians = new Pedestrians(game, game.signals);
   game.wanted = new WantedSystem(); game.combat = new CombatSystem(game); game.cover = new CoverSystem(game); game.police = new PoliceResponse(game); game.death = new RespawnSystem(game);
+  game.missions = new MissionSystem(game);
   game.setWaypoint({ x: 320, z: -610 });
   game.hud = new HUD(ui, game, params.has('debug')); game.menus = new Menus(game, game.hud);
   loop.beforeFrame = dt => { input.poll(Boolean(player.vehicle)); game.menus.handle(input, dt); if (game.menus.isOpen) input.endStep(); };

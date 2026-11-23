@@ -1,7 +1,8 @@
 # Sunset Syndicate
 
 An original procedural third-person open-world game set in Solmar Bay.
-Built in eight verified milestones. M1 includes the golden-hour coastal city,
+Developed in milestones; completion and verification are recorded below.
+M1 includes the golden-hour coastal city,
 articulated character, fixed-step locomotion, third-person camera presets,
 collision, shoulder aim and procedural rendering.
 M2 adds eight original vehicle classes, clearcoat paint and generated environment
@@ -21,6 +22,9 @@ instanced wall decals, tyre/engine damage and explosions. Wanted 1–5 responds
 with chasing/ramming cruisers, armed officers/SWAT and three-star roadblocks;
 breaking line of sight starts a visible search timer. Cover/peek and
 Wasted/Busted respawns are connected to gameplay.
+M6 adds Mara Vale's three original stories, a reusable objective state machine,
+GPS/markers, spline intro cameras, subtitles, checkpoints, retry, cash rewards
+and results screens. Press J or use the pause menu to open Mara's board.
 
 ## Run locally
 
@@ -120,6 +124,20 @@ warnings. The walking/driving/settings/traffic regression also passed.
 
 ```sh
 LP_NUM_THREADS=1 LIBGL_ALWAYS_SOFTWARE=1 SOLMAR_TEST_GPU=mesa xvfb-run -a node scripts/combat-check.mjs
+```
+
+M6: five mission-state tests passed. The browser completed First Delivery using
+the real driving physics, pursued and destroyed the Heat Wave rival, walked
+around the parked car to the Exchange and held the Vault Run interaction,
+which raised three stars. Both escape gates completed with an explicitly
+supplied unseen-LOS fixture to the real wanted timer; this is **not** a manual
+police-evasion playthrough. All three stories reached the completed state,
+with zero console errors/warnings and no camera clipping on those routes.
+The test caught and fixed an early-rival-destruction softlock. The real render
+is `docs/verification/M6.jpg`; the report records the fixture limitation.
+
+```sh
+LP_NUM_THREADS=1 LIBGL_ALWAYS_SOFTWARE=1 SOLMAR_TEST_GPU=mesa xvfb-run -a node scripts/missions-check.mjs
 ```
 
 ## License

@@ -58,6 +58,7 @@ export class Menus {
     if (options.intro !== false && !this.settings.reduceMotion) g.director.start('SOLMAR BAY', g.player.vehicle || g.player, 'MARA VALE: Sunshine is free. Everything else has a price.');
     if (!options.test && navigator.userActivation?.isActive) g.audio.start().then(started => { if (started) g.audio.tone(420, 0.09, 0.08); });
     g.player.snapshot(); g.rig.reset(g.player); g.hud.render();
+    g.events.emit('new-game', { loaded: Boolean(saved), test: Boolean(options.test) });
   }
   pausePage() {
     this.root.innerHTML = `<div class="modal"><p class="eyebrow">SUNSET SYNDICATE</p><h1>Take a breath.</h1><p class="muted">Solmar Bay will still be here.</p><div class="pause-actions"><button class="primary" data-action="resume">RESUME</button><button data-action="map">CITY MAP</button>${this.game.missions ? '<button data-action="jobs">STORIES & ACTIVITIES</button>' : ''}<button data-action="settings">SETTINGS</button><button data-action="save">SAVE GAME</button><button data-action="main">MAIN MENU</button></div><div class="controls-grid"><span>WASD · Move / drive</span><span>Mouse · Look</span><span>E / F · Enter / exit</span><span>V · Camera preset</span><span>RMB · Aim · X · Shoulder</span><span>Space · Jump / handbrake</span><span>1–5 / Wheel · Weapons</span><span>Q · Radio · H · Horn</span><span>T · Driver phone view</span><span>Alt · Standing inspect</span></div></div>`;
@@ -86,6 +87,7 @@ export class Menus {
     this.padCooldown = Math.max(0, this.padCooldown - dt);
     if (input.pressed.delete('Escape')) { if (this.isOpen && this.game.hasStarted) this.close(); else this.show(this.game.hasStarted ? 'pause' : 'main'); }
     if (input.pressed.delete('KeyM')) { if (this.isOpen && this.page === 'map') this.close(); else this.show('map'); }
+    if (input.pressed.delete('KeyJ') && this.game.missions) this.show('jobs');
     if (!this.isOpen) {
       if (input.take('KeyQ')) { const station = this.game.radio.cycle(); this.game.notify(station ? station.name + ' · ' + station.genre : 'Radio off.'); }
       return;

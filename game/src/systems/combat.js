@@ -40,6 +40,7 @@ export class CombatSystem {
     if (input.take('BracketRight')) this.select(this.index + 1);
     if (input.wheel) this.select(this.index + Math.sign(input.wheel));
     if (input.take('KeyR')) this.reload();
+    if (p.vehicle) p.aiming = input.down('Mouse2');
     p.scoped = this.current.scoped && p.aiming && !p.vehicle;
     if (input.down('Mouse0') && !this.cooldown && !this.reloadTimer && p.health > 0 && !p.incapacitated && !p.transition && !g.menus.isOpen) this.fire();
     if (this.meleeTimer > 0) p.state = 'melee';
@@ -62,7 +63,15 @@ export class CombatSystem {
       if (targets[0]) this.hit(targets[0], weapon.damage, { x: targets[0].x, y: targets[0].y + 1, z: targets[0].z }, false);
       return;
     }
-    this.ammunition[this.index]--; const origin = g.camera.position.clone(), direction = g.camera.getWorldDirection(new THREE.Vector3());
+    this.ammunition[this.index]--; let origin = g.camera.position.clone(), direction = g.camera.getWorldDirection(new THREE.Vector3());
+    if (p.vehicle) {
+      const facing = forward(g.rig.yaw), v = p.vehicle;
+      origin = new THREE.Vector3(p.x + facing.x * v.config.length * 0.52, v.y + v.config.height * 0.72, p.z + facing.z * v.config.length * 0.52);
+      direction = new THREE.Vector3(facing.x, -(g.rig.pitch - 0.12) * 0.5, facing.z).normalize();
+      const hostile = g.fleet.vehicles.filter(car => car.active && car.health > 0 && car !== v && ['rival', 'police'].includes(car.ai?.kind) && distance2D(car, p) < 110)
+        .find(car => direction.dot(new THREE.Vector3(car.x - origin.x, car.y + car.config.height * 0.6 - origin.y, car.z - origin.z).normalize()) > 0.985);
+      if (hostile) direction.lerp(new THREE.Vector3(hostile.x - origin.x, hostile.y + hostile.config.height * 0.6 - origin.y, hostile.z - origin.z).normalize(), 0.82).normalize();
+    }
     if (weapon.kind === 'grenade') { this.grenades.throw({ x: p.x, y: p.y + 1.4, z: p.z }, direction); g.wanted.report(12, p); if (!this.ammo) this.reload(); return; }
     g.wanted.report(8, p); g.events.emit('gunshot', { x: p.x, z: p.z });
     g.audio.noise(0.11, 0.21, this.index === 4 ? 600 : 1450); g.audio.tone(this.index === 4 ? 75 : 120, 0.07, 0.09, 'triangle');
