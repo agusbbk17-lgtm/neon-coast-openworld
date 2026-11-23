@@ -1,0 +1,519 @@
+{
+  "browser": "159.0.8154.6",
+  "errors": [],
+  "warnings": [],
+  "externalRequests": [],
+  "stage": "live measurement complete; context restoration",
+  "boot": {
+    "milliseconds": 2628.2000000178814,
+    "renderer": "ANGLE (Mesa, llvmpipe (LLVM 15.0.7 128 bits), OpenGL 4.5)",
+    "cameraPreset": "Medium",
+    "state": {
+      "player": {
+        "x": 329,
+        "y": -0.0049999999999999975,
+        "z": 359,
+        "state": "idle",
+        "vehicle": null
+      },
+      "vehicle": null,
+      "camera": {},
+      "wanted": {
+        "stars": 0,
+        "searching": false,
+        "searchLeft": 0
+      },
+      "weapon": "CITRINE PISTOL",
+      "mission": {
+        "id": null,
+        "state": "idle",
+        "step": 0,
+        "completed": []
+      },
+      "stats": {
+        "fps": 0,
+        "drawCalls": 0,
+        "triangles": 0,
+        "bootMs": 2628.2000000178814,
+        "errors": [],
+        "warnings": []
+      },
+      "seed": "solmar-26"
+    }
+  },
+  "walkOut": {
+    "clipped": false,
+    "state": {
+      "player": {
+        "x": 329,
+        "y": -0.0049999999999999975,
+        "z": 345.7454146946974,
+        "state": "walk",
+        "vehicle": null
+      },
+      "vehicle": null,
+      "camera": {
+        "mode": "foot",
+        "preset": "Medium",
+        "distance": 3.35,
+        "fov": 60,
+        "collisionHits": 0
+      },
+      "wanted": {
+        "stars": 0,
+        "searching": false,
+        "searchLeft": 0
+      },
+      "weapon": "CITRINE PISTOL",
+      "mission": {
+        "id": null,
+        "state": "idle",
+        "step": 0,
+        "completed": []
+      },
+      "stats": {
+        "fps": 0,
+        "drawCalls": 0,
+        "triangles": 0,
+        "bootMs": 2628.2000000178814,
+        "errors": [],
+        "warnings": []
+      },
+      "seed": "solmar-26"
+    }
+  },
+  "walkBack": {
+    "clipped": false,
+    "state": {
+      "player": {
+        "x": 329,
+        "y": -0.0049999999999999975,
+        "z": 358.7545853053033,
+        "state": "walk",
+        "vehicle": null
+      },
+      "vehicle": null,
+      "camera": {
+        "mode": "foot",
+        "preset": "Medium",
+        "distance": 2.38,
+        "fov": 60,
+        "collisionHits": 0
+      },
+      "wanted": {
+        "stars": 0,
+        "searching": false,
+        "searchLeft": 0
+      },
+      "weapon": "CITRINE PISTOL",
+      "mission": {
+        "id": null,
+        "state": "idle",
+        "step": 0,
+        "completed": []
+      },
+      "stats": {
+        "fps": 0,
+        "drawCalls": 264,
+        "triangles": 364400,
+        "bootMs": 2628.2000000178814,
+        "errors": [],
+        "warnings": []
+      },
+      "seed": "solmar-26"
+    }
+  },
+  "entry": {
+    "clipped": false,
+    "state": {
+      "player": {
+        "x": 326,
+        "y": 0.28,
+        "z": 355,
+        "state": "drive",
+        "vehicle": "sports"
+      },
+      "vehicle": {
+        "speed": 0,
+        "gear": 1,
+        "health": 100
+      },
+      "camera": {
+        "mode": "vehicle",
+        "preset": "Medium",
+        "distance": 5.62,
+        "fov": 60,
+        "collisionHits": 0
+      },
+      "wanted": {
+        "stars": 0,
+        "searching": false,
+        "searchLeft": 0
+      },
+      "weapon": "CITRINE PISTOL",
+      "mission": {
+        "id": null,
+        "state": "idle",
+        "step": 0,
+        "completed": []
+      },
+      "stats": {
+        "fps": 0,
+        "drawCalls": 264,
+        "triangles": 364400,
+        "bootMs": 2628.2000000178814,
+        "errors": [],
+        "warnings": []
+      },
+      "seed": "solmar-26"
+    }
+  },
+  "drive": {
+    "simulatedSeconds": 23.6,
+    "clipped": false,
+    "passedTunnel": true,
+    "maxSpeed": 43.1687737517711,
+    "nearestBuilding": 35.00000008018189,
+    "samples": [
+      {
+        "seconds": 0.016666666666666666,
+        "x": 326,
+        "z": 354.9963888888889,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 5.63,
+          "fov": 60,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 2.0166666666666666,
+        "x": 326,
+        "z": 328.8852467935973,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 5.94,
+          "fov": 66.9,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 4.016666666666667,
+        "x": 326,
+        "z": 256.435195657757,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72.1,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 6.016666666666667,
+        "x": 326,
+        "z": 170.72244215099744,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 8.016666666666667,
+        "x": 326,
+        "z": 85.00706306237646,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 10.016666666666667,
+        "x": 326,
+        "z": -0.7112825858545749,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72.1,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 12.016666666666667,
+        "x": 326,
+        "z": -86.43965254171316,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72.1,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 14.016666666666667,
+        "x": 326,
+        "z": -172.16764941770893,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72.1,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 16.016666666666666,
+        "x": 326,
+        "z": -257.8859332134601,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72.1,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 18.016666666666666,
+        "x": 326,
+        "z": -343.6055824673769,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72.1,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 20.016666666666666,
+        "x": 326,
+        "z": -429.3169242977445,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72.1,
+          "collisionHits": 0
+        }
+      },
+      {
+        "seconds": 22.016666666666666,
+        "x": 326,
+        "z": -515.0306625310699,
+        "camera": {
+          "mode": "vehicle",
+          "preset": "Medium",
+          "distance": 6.2,
+          "fov": 72,
+          "collisionHits": 0
+        }
+      }
+    ],
+    "state": {
+      "player": {
+        "x": 326,
+        "y": 0.28,
+        "z": -582.895027479928,
+        "state": "drive",
+        "vehicle": "sports"
+      },
+      "vehicle": {
+        "speed": 42.9409195519894,
+        "gear": 5,
+        "health": 100
+      },
+      "camera": {
+        "mode": "vehicle",
+        "preset": "Medium",
+        "distance": 6.2,
+        "fov": 72.1,
+        "collisionHits": 0
+      },
+      "wanted": {
+        "stars": 0,
+        "searching": false,
+        "searchLeft": 0
+      },
+      "weapon": "CITRINE PISTOL",
+      "mission": {
+        "id": null,
+        "state": "idle",
+        "step": 0,
+        "completed": []
+      },
+      "stats": {
+        "fps": 0,
+        "drawCalls": 102,
+        "triangles": 356628,
+        "bootMs": 2628.2000000178814,
+        "errors": [],
+        "warnings": []
+      },
+      "seed": "solmar-26"
+    }
+  },
+  "teleportReset": {
+    "hillY": 21.05166562012645,
+    "y": -0.0049999999999999975,
+    "grounded": true,
+    "speed": 0,
+    "verticalVelocity": 0,
+    "velocity": {
+      "x": 0,
+      "z": 0
+    }
+  },
+  "retryRegression": {
+    "fixture": "Explicit failure and destroyed-rival state; not a mission-completion playthrough.",
+    "checkpoint": 1,
+    "state": "active",
+    "step": "chase",
+    "rivalHealth": 72,
+    "rivalActive": true,
+    "rivalAi": "rival",
+    "rivalExploded": false,
+    "playerHealth": 100,
+    "incapacitated": false
+  },
+  "adaptation": {
+    "settings": {
+      "ratio": 0.5,
+      "shadow": 0,
+      "range": 620,
+      "post": false,
+      "ao": false
+    },
+    "adjustments": [
+      {
+        "stage": 1,
+        "ratio": 0.85,
+        "shadows": 2048,
+        "post": true
+      },
+      {
+        "stage": 1,
+        "ratio": 0.7,
+        "shadows": 2048,
+        "post": true
+      },
+      {
+        "stage": 1,
+        "ratio": 0.5499999999999999,
+        "shadows": 2048,
+        "post": true
+      },
+      {
+        "stage": 1,
+        "ratio": 0.5,
+        "shadows": 2048,
+        "post": true
+      },
+      {
+        "stage": 2,
+        "ratio": 0.5,
+        "shadows": 1024,
+        "post": true
+      },
+      {
+        "stage": 2,
+        "ratio": 0.5,
+        "shadows": 0,
+        "post": true
+      },
+      {
+        "stage": 3,
+        "ratio": 0.5,
+        "shadows": 0,
+        "post": false
+      }
+    ]
+  },
+  "warmup": {
+    "loopRunning": true,
+    "documentHidden": false,
+    "paused": false,
+    "fps": 0
+  },
+  "performance": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "quality": "high",
+    "automaticQuality": false,
+    "elapsedMilliseconds": 30006.09999999404,
+    "frames": 1,
+    "fps": 0.03332655693343016,
+    "medianFrameMilliseconds": null,
+    "p95FrameMilliseconds": null,
+    "averageRenderMilliseconds": 34.599999994039536,
+    "maximumDrawCalls": 332,
+    "state": {
+      "player": {
+        "x": 326,
+        "y": 0.28,
+        "z": 355,
+        "state": "drive",
+        "vehicle": "sports"
+      },
+      "vehicle": {
+        "speed": 0,
+        "gear": 1,
+        "health": 100
+      },
+      "camera": {
+        "mode": "vehicle",
+        "preset": "Medium",
+        "distance": 5.65,
+        "fov": 60,
+        "collisionHits": 0
+      },
+      "wanted": {
+        "stars": 0,
+        "searching": false,
+        "searchLeft": 0
+      },
+      "weapon": "CITRINE PISTOL",
+      "mission": {
+        "id": null,
+        "state": "idle",
+        "step": 0,
+        "completed": []
+      },
+      "stats": {
+        "fps": 0.12371684666872178,
+        "drawCalls": 332,
+        "triangles": 371504,
+        "bootMs": 2628.2000000178814,
+        "errors": [],
+        "warnings": []
+      },
+      "seed": "solmar-26"
+    },
+    "hardwareTargetMeasured": false,
+    "target60FpsMet": null,
+    "limitation": "Software GPU under Xvfb; this result cannot verify midrange laptop GPU performance."
+  },
+  "contextRestoration": {
+    "tested": true,
+    "menuStayedPaused": true,
+    "drawCalls": 332,
+    "environmentReady": true
+  },
+  "route": {
+    "simulatedSeconds": 30,
+    "scope": "Six seconds walking, eased vehicle entry, then 23.6 seconds driving past buildings and through the Sunline tunnel. This route isolates camera safety; it is not a police evasion playthrough."
+  },
+  "passed": true
+}

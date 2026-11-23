@@ -3,7 +3,7 @@ import { clamp } from '../core/math.js';
 
 export class Lighting {
   constructor(scene, materials) {
-    this.materials = materials; this.time = 17.35; this.dayLength = 1200;
+    this.materials = materials; this.time = 17.35; this.dayLength = 1200; this.shadowsEnabled = true;
     this.sun = new THREE.DirectionalLight('#ffd6a0', 3.1); this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(2048, 2048); this.sun.shadow.camera.left = this.sun.shadow.camera.bottom = -65;
     this.sun.shadow.camera.right = this.sun.shadow.camera.top = 65;
@@ -20,6 +20,7 @@ export class Lighting {
     this.sun.position.set(target.x - 130, 28 + Math.max(0, altitude) * 150, target.z - 90);
     this.sun.target.position.set(target.x, 0, target.z);
     this.sun.intensity = 3.1 * (1 - this.night); this.hemisphere.intensity = 1.35 * (1 - this.night) + 0.3;
+    this.sun.castShadow = this.shadowsEnabled && this.sun.intensity > 0.01;
     this.fill.intensity = 0.35 + this.night * 0.25;
     for (const material of this.materials.facade) material.emissiveIntensity = this.night * 1.1;
     this.materials.neon.emissiveIntensity = 0.3 + this.night * 2;
@@ -27,6 +28,6 @@ export class Lighting {
   configure(settings) {
     const size = settings.shadow || 512;
     if (this.sun.shadow.mapSize.x !== size) { this.sun.shadow.mapSize.set(size, size); this.sun.shadow.map?.dispose(); this.sun.shadow.map = null; }
-    this.sun.castShadow = settings.shadow > 0;
+    this.shadowsEnabled = settings.shadow > 0; this.sun.castShadow = this.shadowsEnabled && this.sun.intensity > 0.01;
   }
 }

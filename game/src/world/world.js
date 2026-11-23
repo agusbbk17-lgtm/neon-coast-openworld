@@ -20,6 +20,10 @@ export class CityWorld {
     this.lighting = new Lighting(scene, this.materials); scene.fog = new THREE.FogExp2('#cfb99e', 0.0009);
   }
   update(dt, time, player) { this.lighting.update(dt, player); this.chunks.update(dt, player); this.water.update(time, this.lighting.night); }
-  render(time, camera) { this.sky.update(time, this.lighting.night, camera.position); this.scene.fog.color.set(this.lighting.night > 0.5 ? '#172d3b' : '#cfb99e'); }
+  render(time, camera) {
+    this.sky.material.uniforms.sun.value.copy(this.lighting.sun.position).sub(this.lighting.sun.target.position).normalize();
+    this.sky.update(time, this.lighting.night, camera.position);
+    this.scene.fog.color.set(this.lighting.night > 0.5 ? '#172d3b' : '#cfb99e');
+  }
   configure(settings) { this.chunks.range = settings.range; this.lighting.configure(settings); }
 }

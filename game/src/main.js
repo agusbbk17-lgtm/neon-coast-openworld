@@ -49,7 +49,7 @@ function boot(context) {
   const world = new CityWorld(scene, params.get('seed') || restored?.seed || 'solmar-26');
   const player = new Player(scene, world), input = new Input(canvas), events = new Events();
   const fleet = new VehicleFleet(scene, world, player, events, notify);
-  const environment = createEnvironment(renderer, scene);
+  let environment = createEnvironment(renderer, scene);
   const graph = createRoadGraph(), director = new CameraDirector(world.seed), audio = new AudioEngine(params.has('noaudio'), world.seed, events), radio = new Radio(audio, world.seed);
   const rig = new CameraRig(camera, world.collision), postfx = new PostFX(renderer);
   rig.director = director; rig.fallbackVehicle = fleet.vehicles[0]; rig.notify = notify;
@@ -75,11 +75,12 @@ function boot(context) {
     if (saveTimer <= 0 && game.hasStarted) { game.save(); saveTimer = 12; }
     input.endStep();
   }, (alpha, dt, elapsed) => {
+    if (game.graphicsLost) return;
     if (game.menus.isOpen) director.update(dt);
     const renderTime = Math.max(0, time - loop.step + alpha * loop.step);
     fleet.render(alpha, renderTime); game.pedestrians.render(alpha, renderTime); game.signals.render(); game.combat.render(); player.render(alpha, renderTime); rig.update(dt, player, input, renderTime); world.render(renderTime, camera);
     postfx.focusStrength = director.active ? 5 : game.menus.isOpen ? 2 : 0.04;
-    postfx.focusDistance = camera.position.distanceTo(new THREE.Vector3(player.rendered.x, player.rendered.y + 0.8, player.rendered.z));
+    postfx.focusDistance = Math.hypot(camera.position.x - player.rendered.x, camera.position.y - player.rendered.y - 0.8, camera.position.z - player.rendered.z);
     renderer.info.reset(); postfx.render(scene, camera, time, player.speed, world.lighting.night, rig.reduceMotion);
     stats.drawCalls = renderer.info.render.calls; stats.triangles = renderer.info.render.triangles;
     frames++; sampleTime += elapsed; if (sampleTime >= 1) { stats.fps = frames / sampleTime; frames = sampleTime = 0; }
@@ -89,9 +90,19 @@ function boot(context) {
   });
   const resize = () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); postfx.resize(); };
   window.addEventListener('resize', resize); resize();
-  canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); loop.paused = true; fatal.hidden = false; fatal.textContent = 'Graphics context lost. Waiting for restoration…'; });
-  canvas.addEventListener('webglcontextrestored', () => { fatal.hidden = true; loop.paused = false; resize(); });
-  const game = window.__game = { ready: false, version: 'M6', params, scene, renderer, camera, world, player, input, rig, quality, postfx, events, stats, loop, fleet, environment,
+  canvas.addEventListener('webglcontextlost', event => {
+    event.preventDefault(); game.graphicsLost = true; loop.paused = true; input.clear(); audio.pause(true);
+    fatal.hidden = false; fatal.textContent = 'Graphics context lost. Waiting for restoration…';
+  });
+  canvas.addEventListener('webglcontextrestored', () => {
+    try {
+      // The invalidated GL objects cannot be safely deleted on the restored context.
+      scene.environment = null; environment = createEnvironment(renderer, scene); game.environment = environment;
+      resize(); quality.apply(); game.graphicsLost = false; loop.last = loop.accumulator = 0;
+      loop.paused = game.menus.isOpen; audio.pause(document.hidden || game.menus.isOpen); fatal.hidden = true;
+    } catch { fatal.textContent = 'Graphics restoration failed. Reload to return to your last local save.'; }
+  });
+  const game = window.__game = { ready: false, graphicsLost: false, version: 'M7', params, scene, renderer, camera, world, player, input, rig, quality, postfx, events, stats, loop, fleet, environment,
     graph, director, audio, radio, hasStarted: false, waypoint: null, route: [],
     notify, get time() { return time; },
     setWaypoint(point) {
@@ -125,9 +136,10 @@ function boot(context) {
       input.injected = null; this.hud.render(); return { clipped, state: this.state() };
     },
     renderFrame() {
+      if (this.graphicsLost) return;
       fleet.render(1, time); this.pedestrians.render(1); this.signals.render(); this.combat.render(); player.render(1, time); rig.update(1 / 60, player, input, time); world.render(time, camera);
       postfx.focusStrength = director.active ? 5 : this.menus.isOpen ? 2 : 0.04;
-      postfx.focusDistance = camera.position.distanceTo(new THREE.Vector3(player.rendered.x, player.rendered.y + 0.8, player.rendered.z));
+      postfx.focusDistance = Math.hypot(camera.position.x - player.rendered.x, camera.position.y - player.rendered.y - 0.8, camera.position.z - player.rendered.z);
       renderer.info.reset(); postfx.render(scene, camera, time, player.speed, world.lighting.night, rig.reduceMotion);
       stats.drawCalls = renderer.info.render.calls; stats.triangles = renderer.info.render.triangles;
       this.hud.render(); if (notifyTimer < 0) document.querySelector('#notification').classList.remove('visible');
@@ -138,7 +150,10 @@ function boot(context) {
   game.missions = new MissionSystem(game);
   game.setWaypoint({ x: 320, z: -610 });
   game.hud = new HUD(ui, game, params.has('debug')); game.menus = new Menus(game, game.hud);
-  loop.beforeFrame = dt => { input.poll(Boolean(player.vehicle)); game.menus.handle(input, dt); if (game.menus.isOpen) input.endStep(); };
+  loop.beforeFrame = dt => {
+    if (game.graphicsLost) { input.endStep(); return; }
+    input.poll(Boolean(player.vehicle)); game.menus.handle(input, dt); if (game.menus.isOpen) input.endStep();
+  };
   document.addEventListener('visibilitychange', () => audio.pause(document.hidden || game.menus.isOpen));
   const firstGesture = event => { if (event.isTrusted && game.hasStarted && !game.menus.isOpen && !audio.started) audio.start(); };
   document.addEventListener('pointerdown', firstGesture); document.addEventListener('keydown', firstGesture);

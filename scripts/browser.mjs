@@ -24,8 +24,10 @@ export async function launchBrowser() {
   try { playwright = require('playwright'); }
   catch { playwright = require(resolve(localTools, 'node_modules/playwright')); }
   const mesa = process.env.SOLMAR_TEST_GPU === 'mesa';
-  const args = ['--no-sandbox', '--disable-gpu-sandbox', '--disable-gpu-watchdog', '--use-gl=angle'];
-  if (mesa) args.push('--use-angle=gl', '--ignore-gpu-blocklist', '--disable-gpu-driver-bug-workarounds', '--disable-accelerated-2d-canvas', '--disable-features=SkiaGraphite,Vulkan');
+  const args = ['--no-sandbox', '--disable-gpu-sandbox', '--disable-gpu-watchdog', '--use-gl=angle',
+    '--disable-backgrounding-occluded-windows', '--disable-renderer-backgrounding',
+    '--disable-features=CalculateNativeWinOcclusion'];
+  if (mesa) args.push('--use-angle=gl', '--ignore-gpu-blocklist', '--disable-gpu-driver-bug-workarounds', '--disable-accelerated-2d-canvas');
   else args.push('--use-angle=swiftshader', '--enable-unsafe-swiftshader');
   return playwright.chromium.launch({ headless: !mesa, args, ...(process.env.SOLMAR_BROWSER ? { executablePath: process.env.SOLMAR_BROWSER } : {}) });
 }

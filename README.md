@@ -140,6 +140,19 @@ is `docs/verification/M6.jpg`; the report records the fixture limitation.
 LP_NUM_THREADS=1 LIBGL_ALWAYS_SOFTWARE=1 SOLMAR_TEST_GPU=mesa xvfb-run -a node scripts/missions-check.mjs
 ```
 
+M7: 52 unit tests passed, including quality adaptation, render bounds, vehicle
+rotating-hull sweeps, vehicle pair impulses and AI scheduling. The browser smoke
+test walked and drove the 30-second route through the Sunline tunnel, asserted
+camera collision safety, auto-quality adaptation, retry recovery and context
+restoration, and captured real foot/drive/live/restored renders. It reported
+zero console errors, warnings and external requests; 332 maximum High draw
+calls. The available Mesa llvmpipe software renderer cannot verify midrange
+laptop FPS or the sub-five-second boot target.
+
+```sh
+LP_NUM_THREADS=1 LIBGL_ALWAYS_SOFTWARE=1 SOLMAR_TEST_GPU=mesa xvfb-run -a node scripts/smoke.mjs
+```
+
 ## License
 
 MIT. See `LICENSE` and the separate vendored dependency notices.

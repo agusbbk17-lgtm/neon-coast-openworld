@@ -28,8 +28,11 @@ export class MissionSystem {
     return { title: this.machine.definition.name, text: step.text + progress, target: step.dynamic ? this.targetCar : step.target || null };
   }
   get subtitle() { return this.machine.state === 'intro' ? this.machine.definition?.intro : this.machine.stepTime < 5 ? this.machine.step?.dialogue || '' : ''; }
-  restore(ids) { this.completed = new Set(ids); this.machine.cancel(); }
-  reset() { this.completed.clear(); this.machine.cancel(); if (this.targetCar) this.targetCar.active = false; this.marker.visible = false; }
+  restore(ids) { this.reset(); this.completed = new Set(ids); }
+  reset() {
+    this.completed.clear(); this.machine.cancel(); if (this.targetCar) this.targetCar.active = false;
+    this.targetCar = null; this.marker.visible = false; this.pendingResults = false; this.checkpointPose = null; this.rivalRoute = [];
+  }
   start(id, closeMenu = true) {
     const definition = MISSION_DEFINITIONS.find(mission => mission.id === id); if (!definition) return false;
     const g = this.game; if (closeMenu) g.menus.close(false);
@@ -41,7 +44,7 @@ export class MissionSystem {
   }
   resetRival() {
     const g = this.game, node = g.graph.nearest({ x: g.player.x, z: g.player.z - 105 });
-    this.targetCar ||= g.fleet.spawn('muscle', node.x + 3.5, node.z + 20, 0, '#c5654c');
+    this.targetCar ||= this.rivalSlot ||= g.fleet.spawn('muscle', node.x + 3.5, node.z + 20, 0, '#c5654c');
     Object.assign(this.targetCar, { x: node.x + 3.5, z: node.z + 20, yaw: 0, health: 72, driver: 'rival', active: true,
       vx: 0, vz: 0, vy: 0, speed: 0, impact: 0, steering: 0, exploded: false, flipped: false, tyreDamage: false, engineDamage: false,
       ai: { kind: 'rival' }, controls: {} });

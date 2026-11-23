@@ -43,6 +43,9 @@ export class Menus {
     }
     this.close(!options.test);
     g.hasStarted = true;
+    if (g.player.vehicle) g.player.vehicle.driver = null;
+    Object.assign(g.player, { vehicle: null, transition: null, incapacitated: false, interacting: false, cover: null, scoped: false, aiming: false, crouched: false, state: 'idle' });
+    g.rig.phone = g.rig.cinematic = false; g.wanted?.reset(); g.police?.clear(); g.combat?.reset();
     g.director.active = null; g.director.title = ''; g.director.subtitle = ''; g.director.letterbox = false;
     if (saved) {
       Object.assign(g.player, saved.player); g.player.vehicle = null;
@@ -53,7 +56,12 @@ export class Menus {
       g.player.health = 100; g.player.armor = 35; g.player.cash = 250;
       g.missions?.reset(); g.wanted?.reset(); g.player.vehicle = null; g.player.transition = null;
       g.teleport(CITY.spawn.x, CITY.spawn.z, CITY.spawn.yaw);
-      if (!options.foot) g.fleet.enter(g.fleet.vehicles[0], true);
+      if (!options.foot) {
+        const car = g.fleet.vehicles[0];
+        Object.assign(car, { x: 326, z: 355, yaw: 0, health: 100, active: true, ai: null, controls: {},
+          vx: 0, vz: 0, vy: 0, speed: 0, steering: 0, impact: 0, roll: 0, pitch: 0, tyreDamage: false, exploded: false, flipped: false });
+        g.fleet.enter(car, true); g.teleport(326, 355, 0);
+      }
     }
     if (options.intro !== false && !this.settings.reduceMotion) g.director.start('SOLMAR BAY', g.player.vehicle || g.player, 'MARA VALE: Sunshine is free. Everything else has a price.');
     if (!options.test && navigator.userActivation?.isActive) g.audio.start().then(started => { if (started) g.audio.tone(420, 0.09, 0.08); });

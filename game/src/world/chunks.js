@@ -4,8 +4,8 @@ import { Instances } from '../render/geometry.js';
 export class ChunkStreamer {
   constructor(chunks, records, scene, materials) {
     this.chunks = chunks; this.range = 620; this.timer = 0; this.visible = 0;
-    const batch = new Instances(), cube = new THREE.BoxGeometry(1, 1, 1);
-    for (const b of records.filter(b => b.height > 28)) batch.add('horizon', cube, materials.surface('#93aab0'),
+    const batch = new Instances(), cube = new THREE.BoxGeometry(1, 1, 1), horizonMaterial = materials.surface('#93aab0');
+    for (const b of records) if (b.height > 28) batch.add('horizon', cube, horizonMaterial,
       [b.x, b.height / 2, b.z], [b.width * 0.997, b.height * 0.998, b.depth * 0.997]);
     this.horizon = new THREE.Group(); batch.build(this.horizon, false); scene.add(this.horizon);
   }

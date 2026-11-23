@@ -98,7 +98,7 @@ export class VehicleFleet {
     }
     const nearby = this.vehicles.filter(v => v.active && distance2D(v, player) < 160);
     for (let i = 0; i < nearby.length; i++) for (let j = i + 1; j < nearby.length; j++)
-      if (distance2D(nearby[i], nearby[j]) < 7) resolveVehiclePair(nearby[i], nearby[j]);
+      if (distance2D(nearby[i], nearby[j]) < 7) resolveVehiclePair(nearby[i], nearby[j], this.world.collision);
     this.transition(dt);
     if (!player.vehicle && !player.transition) {
       for (const v of nearby) {

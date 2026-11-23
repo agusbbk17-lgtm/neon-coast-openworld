@@ -68,6 +68,11 @@ export function createVehicleModel(type, config, paint, materials) {
   const tireMaterial = materials.surface('#202728', 0.95), rimMaterial = materials.surface('#bcc6c4', 0.25, 0.85);
   const tires = new THREE.InstancedMesh(new THREE.CylinderGeometry(radius, radius, bike ? 0.16 : 0.26, 20), tireMaterial, wheelPositions.length);
   const rims = new THREE.InstancedMesh(new THREE.CylinderGeometry(radius * 0.60, radius * 0.60, bike ? 0.17 : 0.28, 12), rimMaterial, wheelPositions.length);
+  const wheelReach = Math.max(...wheelPositions.map(position => Math.hypot(position[0], position[2])));
+  // These local bounds enclose every steering/spin angle without rescanning instance matrices.
+  tires.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, radius, 0), wheelReach + Math.hypot(radius, bike ? 0.08 : 0.13));
+  rims.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, radius, 0), wheelReach + Math.hypot(radius * 0.6, bike ? 0.085 : 0.14));
+  tires.instanceMatrix.setUsage(THREE.DynamicDrawUsage); rims.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   tires.castShadow = rims.castShadow = true; chassis.add(tires, rims);
   const door = new THREE.Group(); door.position.set(-w * 1.005, bodyHeight * 0.6, -l * 0.21); chassis.add(door);
   if (!bike) door.add(box(0.075, bodyHeight * 0.62, l * 0.62, paintMaterial, 0, 0, l * 0.31));
@@ -101,7 +106,6 @@ export function createVehicleModel(type, config, paint, materials) {
       dummy.rotateY((vehicle.wheelSpin || 0)); dummy.updateMatrix(); tires.setMatrixAt(i, dummy.matrix); rims.setMatrixAt(i, dummy.matrix);
     });
     tires.instanceMatrix.needsUpdate = rims.instanceMatrix.needsUpdate = true;
-    tires.computeBoundingSphere(); rims.computeBoundingSphere();
   }
   return { root, chassis, body, door, animate, paintMaterial, tires, rims };
 }

@@ -1,5 +1,9 @@
 import * as THREE from '../../vendor/three.min.js';
 
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
+const boxPositions = unitBox.attributes.position.array, boxNormals = unitBox.attributes.normal.array;
+const boxIndices = unitBox.index.array;
+
 export function box(width, height, depth, material, x = 0, y = 0, z = 0) {
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), material);
   mesh.position.set(x, y, z); mesh.castShadow = mesh.receiveShadow = true; return mesh;
@@ -27,15 +31,14 @@ export class Instances {
 }
 // Merge transformed boxes into one indexed geometry with per-vertex colors.
 export class BoxBatch {
-  constructor() { this.positions = []; this.normals = []; this.colors = []; this.indices = []; }
+  constructor() { this.positions = []; this.normals = []; this.colors = []; this.indices = []; this.color = new THREE.Color(); }
   add(x, y, z, width, height, depth, color) {
-    const geometry = new THREE.BoxGeometry(width, height, depth), start = this.positions.length / 3;
-    const p = geometry.attributes.position.array, n = geometry.attributes.normal.array, c = new THREE.Color(color);
+    const start = this.positions.length / 3, p = boxPositions, n = boxNormals, c = this.color.set(color);
     for (let i = 0; i < p.length; i += 3) {
-      this.positions.push(p[i] + x, p[i + 1] + y, p[i + 2] + z);
+      this.positions.push(p[i] * width + x, p[i + 1] * height + y, p[i + 2] * depth + z);
       this.normals.push(n[i], n[i + 1], n[i + 2]); this.colors.push(c.r, c.g, c.b);
     }
-    for (const index of geometry.index.array) this.indices.push(start + index); geometry.dispose();
+    for (const index of boxIndices) this.indices.push(start + index);
   }
   build(material) {
     const geometry = new THREE.BufferGeometry();

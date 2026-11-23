@@ -25,6 +25,13 @@ export class CombatSystem {
   get current() { return WEAPONS[this.index]; }
   get ammo() { return this.ammunition[this.index]; }
   get reserve() { return this.reserves[this.index]; }
+  reset() {
+    this.index = 2; this.ammunition = WEAPONS.map(weapon => weapon.magazine); this.reserves = WEAPONS.map(weapon => weapon.reserve);
+    this.cooldown = this.reloadTimer = this.hitTimer = this.meleeTimer = 0; this.shockwaves.length = 0;
+    for (const item of this.particles.items) item.life = 0;
+    for (const item of this.particles.tracers) item.life = 0;
+    for (const item of this.grenades.items) item.active = false;
+  }
   select(index) { this.index = (index + WEAPONS.length) % WEAPONS.length; this.reloadTimer = 0; this.game.player.scoped = false; }
   reload() {
     if (this.current.magazine && this.ammo < this.current.magazine && this.reserve > 0 && !this.reloadTimer) { this.reloadTimer = this.index === 4 ? 1.7 : 1.2; this.game.audio.tone(250, 0.10, 0.04); }

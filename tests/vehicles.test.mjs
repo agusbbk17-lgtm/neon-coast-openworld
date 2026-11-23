@@ -29,3 +29,17 @@ test('front-corner sweep prevents driving through a building', () => {
   for (let i = 0; i < 150; i++) integrateVehicle(v, { throttle: 1 }, 1 / 60, world);
   assert.ok(v.z > -13); assert.ok(v.health < 100);
 });
+test('rotating hull remains outside a wall at 40 and 60 metres per second', () => {
+  for (const speed of [40, 60]) {
+    const v = car(-1.031), world = new CollisionWorld(); world.add(5, 2, 0, 10, 4, 100);
+    v.vz = -speed; v.steering = 0.57 / (1 + speed * 0.1);
+    const result = integrateVehicle(v, { steer: 1 }, 1 / 60, world);
+    const maxX = v.x + Math.abs(Math.cos(v.yaw)) * v.config.width / 2 + Math.abs(Math.sin(v.yaw)) * v.config.length / 2;
+    assert.ok(result.fraction < 1); assert.ok(maxX < 0, 'no corner penetrates the wall while yaw changes');
+  }
+});
+test('pair impulses cannot push a car through a nearby building', () => {
+  const a = car(-1.05), b = car(-2.5), world = new CollisionWorld(); world.add(5, 2, 0, 10, 4, 100);
+  b.vx = 8; resolveVehiclePair(a, b, world);
+  assert.ok(a.x + a.config.width / 2 < 0);
+});
